@@ -7,13 +7,13 @@ import java.util.List;
 /**
  * Created by yonisha on 3/26/2015.
  */
-public class Trainer {
+public class trainer {
     private static List<Segment> segments = new ArrayList<Segment>();
 
 
     public static void main(String[] args) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos.train"));
-
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos-small.train"));
+        int maxNGramLength = 2;
 
         List<Sentence> sentences = new ArrayList<Sentence>();
         List<String> currentSentenceSegments = new ArrayList<String>();
@@ -43,15 +43,24 @@ public class Trainer {
 
         for (int i = 0; i <sentences.size(); i++) {
             System.out.println(sentences.get(i).toString());
-
         }
 
         createLexFile();
-        createGramFile();
+        createGramFile(sentences, maxNGramLength);
     }
 
-    private static void createGramFile() {
+    private static void createGramFile(List<Sentence> sentences, int maxNGramLength) throws IOException {
         File gram = new File("c:/NLP/heb-pos.gram");
+        gram.createNewFile();
+        FileWriter fileWriter = new FileWriter(gram);
+
+        NGramsCreator nGramsCreator = new NGramsCreator();
+        List<NgramsByLength> ngramsByLengths = nGramsCreator.create(maxNGramLength, sentences);
+        for (NgramsByLength ngramsByLength: ngramsByLengths){
+            fileWriter.append(ngramsByLength.toString() + "\r\n");
+        }
+
+        fileWriter.close();
     }
     private static Segment getSegment(String segmentName) {
         for (Segment segmentItem : segments) {
