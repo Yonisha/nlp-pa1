@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,11 +6,10 @@ import java.util.List;
 
 public class PosTaggerDecoder {
 
-    private TrainerResult trainerResult;
-    private SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
+    private SentenceDecoder sentenceDecoder;
 
     public PosTaggerDecoder(TrainerResult trainerResult){
-        this.trainerResult = trainerResult;
+        sentenceDecoder = new SentenceDecoder(trainerResult);
     }
 
     public void decode(String inputFileName, String outputFileName) throws IOException {
@@ -28,10 +26,6 @@ public class PosTaggerDecoder {
             }
 
             line = bufferedReader.readLine();
-        }
-
-        for (InputSentence sentence: sentences){
-            System.out.println(sentence);
         }
 
         List<String> outputLines = new ArrayList<>();

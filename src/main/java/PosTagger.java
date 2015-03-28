@@ -12,10 +12,10 @@ public class PosTagger {
 
         String testFile = "C:/NLP/heb-pos-small.test";
         String taggedTestFile = "C:/NLP/heb-pos-small.tagged";
-//
-//        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
-//        decoder.decode(testFile, taggedTestFile);
-//
+
+        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
+        decoder.decode(testFile, taggedTestFile);
+
         String evaluationFile = "C:/NLP/heb-pos-small.eval";
         String goldFile = "C:/NLP/heb-pos.gold";
 //        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);

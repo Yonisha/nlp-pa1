@@ -41,28 +41,33 @@ public class PosTaggerTrainer {
             line = bufferedReader.readLine();
         }
 
-        for (int i = 0; i <sentences.size(); i++) {
-            System.out.println(sentences.get(i).toString());
-        }
-
         // write Lex file
         List<String> lexOutputLines = createLexOutputLines();
         FileHelper.writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
 
         // write grams file
-        List<String> gramOutputLines = createGramFile(sentences, maxNgramLength);
+        List<NgramsByLength> ngramsByLength = createNgramsByLength(sentences, maxNgramLength);
+        List<String> gramOutputLines = createGramFile(ngramsByLength);
         FileHelper.writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
 
-        return new TrainerResult(gramOutputLines, lexOutputLines);
+        return new TrainerResult(ngramsByLength, lexOutputLines);
     }
 
-    private List<String> createGramFile(List<Sentence> sentences, int maxNGramLength) throws IOException {
+    private List<NgramsByLength> createNgramsByLength(List<Sentence> sentences, int maxNGramLength) throws IOException {
 
-        List<String> outputLines = new ArrayList<>();
         NGramsCreator nGramsCreator = new NGramsCreator();
         List<NgramsByLength> ngramsByLengths = nGramsCreator.create(maxNGramLength, sentences);
-        for (NgramsByLength ngramsByLength: ngramsByLengths){
-            outputLines.add(ngramsByLength.toString());
+        return ngramsByLengths;
+    }
+
+    private List<String> createGramFile(List<NgramsByLength> ngramsByLength) throws IOException {
+        List<String> outputLines = new ArrayList<>();
+        for (NgramsByLength ngramByLength: ngramsByLength){
+            outputLines.add(ngramByLength.header());
+            List<NgramWithProb> ngramsWithProb = ngramByLength.getNgramsWithProb();
+            for (NgramWithProb ngramWithProb: ngramsWithProb){
+                outputLines.add(ngramWithProb.toString());
+            }
         }
 
         return outputLines;
@@ -114,7 +119,7 @@ public class PosTaggerTrainer {
         while (keys.hasMoreElements()) {
             String currentKey = keys.nextElement();
             Double prob = probabilities.get(currentKey);
-            outputLine += "\t" + currentKey + "\t" + prob;
+            outputLine += "\t" + currentKey + " " + prob;
         }
 
         return outputLine;

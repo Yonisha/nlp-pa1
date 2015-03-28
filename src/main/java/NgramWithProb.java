@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class NgramWithProb{
     private String ngram;
     private double prob;
@@ -5,6 +7,14 @@ public class NgramWithProb{
     public NgramWithProb(String ngram, double prob){
         this.ngram = ngram;
         this.prob = prob;
+    }
+
+    public String[] getNgramTags(){
+        return ngram.split(" ");
+    }
+
+    public double getProb(){
+        return prob;
     }
 
     @Override

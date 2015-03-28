@@ -10,12 +10,21 @@ public class NgramsByLength{
         this.length = length;
     }
 
-    @Override
-    public String toString(){
-        String text = "\\" + length + "-grams\\\r\n";
-        for (NgramWithProb ngram: ngrams) {
-            text += ngram.toString();
-        }
-        return text;
+    public String header(){
+        return "\\" + length + "-grams\\";
     }
+
+    public List<NgramWithProb> getNgramsWithProb(){
+        return ngrams;
+    }
+
+//    @Override
+//    public String toString(){
+//        String text =
+//        for (NgramWithProb ngram: ngrams) {
+//            text += ngram.toString() + "\r\n";
+//
+//        }
+//        return text;
+//    }
 }
