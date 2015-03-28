@@ -48,11 +48,11 @@ public class PosTaggerTrainer {
 
         // write Lex file
         List<String> lexOutputLines = createLexOutputLines();
-        writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
+        FileHelper.writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
 
         // write grams file
         List<String> gramOutputLines = createGramFile(sentences, maxNgramLength);
-        writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
+        FileHelper.writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
 
         return new TrainerResult(gramOutputLines, lexOutputLines);
     }
@@ -63,22 +63,10 @@ public class PosTaggerTrainer {
         NGramsCreator nGramsCreator = new NGramsCreator();
         List<NgramsByLength> ngramsByLengths = nGramsCreator.create(maxNGramLength, sentences);
         for (NgramsByLength ngramsByLength: ngramsByLengths){
-            outputLines.add(ngramsByLength.toString() + "\r\n");
+            outputLines.add(ngramsByLength.toString());
         }
 
         return outputLines;
-    }
-
-    private void writeLinesToFile(List<String> lines, String fileName) throws IOException {
-        File file = new File(fileName);
-        file.createNewFile();
-        FileWriter fileWriter = new FileWriter(file);
-
-        for (String line: lines){
-            fileWriter.append(line);
-        }
-
-        fileWriter.close();
     }
 
     private Segment getSegment(String segmentName) {
@@ -126,6 +114,6 @@ public class PosTaggerTrainer {
             outputLine += "\t" + currentKey + "\t" + prob;
         }
 
-        return outputLine + "\r\n";
+        return outputLine;
     }
 }

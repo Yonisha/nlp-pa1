@@ -7,16 +7,12 @@ public class Ngram{
         this.tags = tags;
     }
 
-    public String getKey(){
+    @Override
+    public String toString(){
         String text = "";
         for (String tag: tags){
             text += tag + " ";
         }
         return text.trim();
-    }
-
-    @Override
-    public String toString(){
-        return getKey() + "\r\n";
     }
 }

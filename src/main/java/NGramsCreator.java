@@ -62,11 +62,11 @@ public class NGramsCreator{
     private HashMap<String, Integer> createUniqueNgramsWithCount(List<Ngram> ngrams){
         HashMap<String, Integer> uniqueNgramsWithCount = new HashMap<>();
         for(Ngram ngram: ngrams){
-            if (uniqueNgramsWithCount.containsKey(ngram.getKey())){
-                int count = uniqueNgramsWithCount.get(ngram.getKey()) + 1;
-                uniqueNgramsWithCount.put(ngram.getKey(), count);
+            if (uniqueNgramsWithCount.containsKey(ngram.toString())){
+                int count = uniqueNgramsWithCount.get(ngram.toString()) + 1;
+                uniqueNgramsWithCount.put(ngram.toString(), count);
             }else{
-                uniqueNgramsWithCount.put(ngram.getKey(), 1);
+                uniqueNgramsWithCount.put(ngram.toString(), 1);
             }
         }
 

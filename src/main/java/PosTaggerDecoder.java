@@ -14,8 +14,8 @@ public class PosTaggerDecoder {
         this.trainerResult = trainerResult;
     }
 
-    public void decode() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos-small.test"));
+    public void decode(String inputFileName, String outputFileName) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFileName));
         List<InputSentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
         String line = bufferedReader.readLine();
@@ -41,6 +41,8 @@ public class PosTaggerDecoder {
                 outputLines.add(sentence.getSegments().get(i) + "\t" + tags.get(i));
             }
         }
+
+        FileHelper.writeLinesToFile(outputLines, outputFileName);
 
         for (String outputLine: outputLines){
             System.out.println(outputLine);

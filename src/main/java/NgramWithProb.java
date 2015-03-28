@@ -9,6 +9,6 @@ public class NgramWithProb{
 
     @Override
     public String toString(){
-        return  prob + "\t" + ngram + "\r\n";
+        return  prob + "\t" + ngram;
     }
 }
