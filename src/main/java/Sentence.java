@@ -11,7 +11,7 @@ public class Sentence {
         }
         this.segments.addAll(segments);
         for (int i = 0; i <maxNgramLength-1; i++) {
-            segments.add("[e]");
+            this.segments.add("[e]");
         }
     }
 

@@ -12,8 +12,8 @@ public class PosTagger {
         PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
         TrainerResult trainerResult = trainer.train();
 
-        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
-        decoder.decode();
+//        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
+//        decoder.decode();
 
     }
 }

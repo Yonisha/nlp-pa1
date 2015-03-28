@@ -70,7 +70,7 @@ public class PosTaggerTrainer {
     }
 
     private void writeLinesToFile(List<String> lines, String fileName) throws IOException {
-        File file = new File("c:/NLP/heb-pos.lex");
+        File file = new File(fileName);
         file.createNewFile();
         FileWriter fileWriter = new FileWriter(file);
 
@@ -78,7 +78,7 @@ public class PosTaggerTrainer {
             fileWriter.append(line);
         }
 
-        fileWriter.flush();
+        fileWriter.close();
     }
 
     private Segment getSegment(String segmentName) {
