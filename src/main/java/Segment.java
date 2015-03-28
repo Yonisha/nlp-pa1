@@ -2,9 +2,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-/**
- * Created by yonisha on 3/26/2015.
- */
 public class Segment {
 
     private String name;
