@@ -4,11 +4,15 @@ import java.util.List;
 public class Sentence {
     private List<String> segments;
 
-    public Sentence(List<String> segments){
+    public Sentence(List<String> segments, int maxNgramLength){
         this.segments = new ArrayList<>();
-        this.segments.add("[s]");
+        for (int i = 0; i <maxNgramLength-1; i++) {
+            this.segments.add("[s]");
+        }
         this.segments.addAll(segments);
-        this.segments.add("[e]");
+        for (int i = 0; i <maxNgramLength-1; i++) {
+            segments.add("[e]");
+        }
     }
 
     public List<String> getSegments(){

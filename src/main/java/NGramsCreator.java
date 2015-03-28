@@ -81,22 +81,13 @@ public class NGramsCreator{
 
     private List<Ngram> createPerSentence(int length, Sentence sentence){
         List<String> segments = sentence.getSegments();
-        List<String> segmentsWithStartAndEnd = new ArrayList<String>();
-        for (int i = 0; i <length-1; i++) {
-            segmentsWithStartAndEnd.add("[s]");
-        }
-        segmentsWithStartAndEnd.addAll(segments);
-        for (int i = 0; i <length-1; i++) {
-            segmentsWithStartAndEnd.add("[e]");
-        }
 
         List<Ngram> ngrams = new ArrayList<Ngram>();
-        List<String> currentNgramTags = new ArrayList<String>();
 
-        for (int i = 0; i <segmentsWithStartAndEnd.size() - length + 1; i++) {
-            currentNgramTags = new ArrayList<String>();
+        for (int i = 0; i <segments.size() - length + 1; i++) {
+            List<String> currentNgramTags = new ArrayList<String>();
             for (int j = i; j <i+length; j++) {
-                currentNgramTags.add(segmentsWithStartAndEnd.get(j));
+                currentNgramTags.add(segments.get(j));
             }
             ngrams.add(new Ngram(currentNgramTags));
         }

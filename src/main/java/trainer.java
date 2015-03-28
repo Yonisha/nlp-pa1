@@ -13,10 +13,10 @@ public class trainer {
 
     public static void main(String[] args) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos-small.train"));
-        int maxNGramLength = 2;
+        int maxNgramLength = 2;
 
-        List<Sentence> sentences = new ArrayList<Sentence>();
-        List<String> currentSentenceSegments = new ArrayList<String>();
+        List<Sentence> sentences = new ArrayList<>();
+        List<String> currentSentenceSegments = new ArrayList<>();
 
 
         String line = bufferedReader.readLine();
@@ -26,8 +26,8 @@ public class trainer {
             // fix condition for empty line
             if (split.length != 2) {
                 line = bufferedReader.readLine();
-                sentences.add(new Sentence(currentSentenceSegments));
-                currentSentenceSegments = new ArrayList<String>();
+                sentences.add(new Sentence(currentSentenceSegments, maxNgramLength));
+                currentSentenceSegments = new ArrayList<>();
                 continue;
             }
 
@@ -46,7 +46,7 @@ public class trainer {
         }
 
         createLexFile();
-        createGramFile(sentences, maxNGramLength);
+        createGramFile(sentences, maxNgramLength);
     }
 
     private static void createGramFile(List<Sentence> sentences, int maxNGramLength) throws IOException {
