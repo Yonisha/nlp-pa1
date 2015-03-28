@@ -1,5 +1,8 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class SentenceEvaluator{
-    public SentenceAccuracy evaluate(TaggedSentence taggedSentence, TaggedSentence goldTaggedSentence){
-        return new SentenceAccuracy(0, 0);
+    public SentenceAccuracy evaluate(int sentenceNum, List<WordWithTag> decoderTaggingForCurrentSentence, List<WordWithTag> goldTaggingForCurrentSentence){
+        return new SentenceAccuracy(sentenceNum, new ArrayList<>(), 0);
     }
 }

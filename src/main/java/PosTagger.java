@@ -7,17 +7,25 @@ public class PosTagger {
         int maxNgramLength = 2;
         boolean useSmoothing = true; // need to implement
 
-        PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
-        TrainerResult trainerResult = trainer.train();
-
         String testFile = "C:/NLP/heb-pos-small.test";
         String taggedTestFile = "C:/NLP/heb-pos-small.tagged";
-
-        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
-        decoder.decode(testFile, taggedTestFile);
-
         String evaluationFile = "C:/NLP/heb-pos-small.eval";
         String goldFile = "C:/NLP/heb-pos.gold";
+
+        // Naive tagging
+        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder();
+        PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
+        naiveDecoder.decode(testFile, taggedTestFile);
+
+        // HMM Viterbi tagging
+        PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
+        TrainerResult trainerResult = trainer.train();
+        SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
+
+        PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
+        decoder.decode(testFile, taggedTestFile);
+
+
 //        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
 //        evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
     }

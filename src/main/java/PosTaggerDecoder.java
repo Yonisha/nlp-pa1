@@ -6,10 +6,10 @@ import java.util.List;
 
 public class PosTaggerDecoder {
 
-    private SentenceDecoder sentenceDecoder;
+    private ISentenceDecoder sentenceDecoder;
 
-    public PosTaggerDecoder(TrainerResult trainerResult){
-        sentenceDecoder = new SentenceDecoder(trainerResult);
+    public PosTaggerDecoder(ISentenceDecoder sentenceDecoder){
+        this.sentenceDecoder = sentenceDecoder;
     }
 
     public void decode(String inputFileName, String outputFileName) throws IOException {

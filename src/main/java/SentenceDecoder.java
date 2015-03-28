@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class SentenceDecoder{
+public class SentenceDecoder implements ISentenceDecoder{
 
     private List<NgramsByLength> stateTransitionProbabilities;
     private List<String> symbolEmissionProbabilities;
@@ -22,6 +22,61 @@ public class SentenceDecoder{
         return sentence.getSegments();
     }
 
+//    private List<State> viterbiRec(int iteration, Set<State> states, List<String> segmentsInSentence){
+//        // Base case
+//        if (segmentsInSentence.size() == 0) {
+//            State maxLastIteration = getMaxLastIteration(iteration, states);
+//            ArrayList<State> bestPath = new ArrayList<>();
+//            bestPath.add(maxLastIteration);
+//
+//            return bestPath;
+//        }
+//
+//        String currentSegment = segmentsInSentence.get(0);
+//        segmentsInSentence.remove(0);
+//
+//        return viterbiRec(iteration++, states, segmentsInSentence);
+//    }
+
+//    private State getMaxLastIteration(int iteration, Set<State> states) {
+//
+//        State stateWithMaxProb = null;
+//        double maxProb = 0;
+//        for (State state : states) {
+//            double currentMaxProb = state.getLastInnerState().getMaxProb();
+//            if (state.getIteration() == iteration && currentMaxProb > maxProb) {
+//                maxProb = currentMaxProb;
+//                stateWithMaxProb = state;
+//            }
+//        }
+//
+//        return stateWithMaxProb;
+//    }
+
+//    private Set<State> initialize(Set<State> states, InputSentence sentence) {
+//        NgramsByLength bigrams = this.stateTransitionProbabilities.get(1);
+//        List<NgramWithProb> ngramsWithProb = bigrams.getNgramsWithProb();
+//        for (NgramWithProb ngramWithProb: ngramsWithProb) {
+//            String tag1 = ngramWithProb.getNgramTags()[0];
+//            String tag2 = ngramWithProb.getNgramTags()[1];
+//            if (tag1.equals("[s]")) {
+//                double transitionProb = ngramWithProb.getProb();
+//
+//                Iterator<State> iterator = states.iterator();
+//                while (iterator.hasNext()){
+//                    State currentState = iterator.next();
+//                    if (currentState.getTag().equals(tag2)){
+//                        double emissionProb = getEmissionProbForSegmentAndTag(sentence.getSegments().get(0), tag2);
+//                        currentState.addInnerState(transitionProb*emissionProb, new State(tag1));
+//                    }
+//                }
+//            }
+//        }
+//
+//        return states;
+//    }
+
+
     private Set<State> initialize(Set<State> states, InputSentence sentence) {
         NgramsByLength bigrams = this.stateTransitionProbabilities.get(1);
         List<NgramWithProb> ngramsWithProb = bigrams.getNgramsWithProb();
@@ -35,9 +90,8 @@ public class SentenceDecoder{
                 while (iterator.hasNext()){
                     State currentState = iterator.next();
                     if (currentState.getTag().equals(tag2)){
-                        currentState.setPreviousState(new State(tag1));
                         double emissionProb = getEmissionProbForSegmentAndTag(sentence.getSegments().get(0), tag2);
-                        currentState.setMaxProb(transitionProb*emissionProb);
+                        currentState.addInnerState(transitionProb*emissionProb, new State(tag1));
                     }
                 }
             }
@@ -45,6 +99,7 @@ public class SentenceDecoder{
 
         return states;
     }
+
 
     private double getEmissionProbForSegmentAndTag(String segment, String tag){
         for (String line : this.symbolEmissionProbabilities) {

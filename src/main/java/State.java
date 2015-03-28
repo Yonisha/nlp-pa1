@@ -1,29 +1,31 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class State{
     private String tag;
-    private State previousState;
-    private double maxProb;
+    private List<InnerState> innerStates = new ArrayList<>();
 
     public State(String tag){
         this.tag = tag;
+    }
+
+    public void addInnerState(double prob, State prevState) {
+        new InnerState(prob, prevState);
     }
 
     public String getTag(){
         return this.tag;
     }
 
-    public State getPreviousState(){
-        return this.previousState;
+    public InnerState getLastInnerState() {
+        return innerStates.get(innerStates.size() - 1);
     }
 
-    public double getMaxProb(){
-        return this.maxProb;
+    public void removeIteration() {
+        innerStates.remove(innerStates.size() - 1);
     }
 
-    public void setPreviousState(State previousState){
-        this.previousState = previousState;
-    }
-
-    public void setMaxProb(double maxProb){
-        this.maxProb = maxProb;
+    public int getIteration() {
+        return innerStates.size();
     }
 }

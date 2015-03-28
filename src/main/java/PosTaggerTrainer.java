@@ -23,7 +23,7 @@ public class PosTaggerTrainer {
         while (line != null) {
             String[] split = line.split("\t");
 
-            // fix condition for empty line
+            // TODO fix condition for empty line
             if (split.length != 2) {
                 line = bufferedReader.readLine();
                 sentences.add(new Sentence(currentSentenceSegments, maxNgramLength));
