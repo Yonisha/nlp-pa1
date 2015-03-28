@@ -7,7 +7,7 @@ import java.util.List;
 public class PosTaggerTrainer {
 
     private int maxNgramLength;
-    private List<Segment> segments = new ArrayList<Segment>();
+    private List<Segment> segmentsWithoutUnknown = new ArrayList<Segment>();
 
     public PosTaggerTrainer(int maxNgramLength){
         this.maxNgramLength = maxNgramLength;
@@ -18,7 +18,6 @@ public class PosTaggerTrainer {
 
         List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
-
 
         String line = bufferedReader.readLine();
         while (line != null) {
@@ -70,42 +69,46 @@ public class PosTaggerTrainer {
     }
 
     private Segment getSegment(String segmentName) {
-        for (Segment segmentItem : segments) {
+        for (Segment segmentItem : segmentsWithoutUnknown) {
             if (segmentItem.getText().equalsIgnoreCase(segmentName)) {
                 return segmentItem;
             }
         }
 
         Segment segment = new Segment(segmentName);
-        segments.add(segment);
+        segmentsWithoutUnknown.add(segment);
 
         return segment;
     }
 
     private List<String> createLexOutputLines() throws IOException {
 
-        List<String> outputLines = new ArrayList<>();
         Segment unknownSegment = new Segment("UNK");
 
-        for (Segment segment : segments) {
+        List<Segment> segmentsAfterConsideringUnknown = new ArrayList<>();
+        for (Segment segment : segmentsWithoutUnknown) {
             if (segment.appearsOnce()){
                 unknownSegment.increment(segment.getTagsCounts().keys().nextElement());
                 continue;
             }
 
-            String outputLine = getLexLinePerSegment(segment);
-            outputLines.add(outputLine);
+            segmentsAfterConsideringUnknown.add(segment);
         }
 
-        String outputLineForUNK = getLexLinePerSegment(unknownSegment);
-        outputLines.add(outputLineForUNK);
+        segmentsAfterConsideringUnknown.add(unknownSegment);
+
+        List<String> outputLines = new ArrayList<>();
+        for (Segment segment : segmentsAfterConsideringUnknown) {
+            String outputLine = getLexLinePerSegment(segment, segmentsAfterConsideringUnknown);
+            outputLines.add(outputLine);
+        }
 
         return outputLines;
     }
 
-    private String getLexLinePerSegment(Segment segment){
+    private String getLexLinePerSegment(Segment segment, List<Segment> segments){
         String outputLine = segment.getText();
-        Dictionary<String, Double> probabilities = segment.getProbabilities();
+        Dictionary<String, Double> probabilities = segment.getProbabilities(segments);
 
         Enumeration<String> keys = probabilities.keys();
         while (keys.hasMoreElements()) {

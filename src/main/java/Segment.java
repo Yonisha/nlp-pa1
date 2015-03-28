@@ -1,6 +1,7 @@
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 public class Segment {
 
@@ -33,14 +34,7 @@ public class Segment {
         return tagsCounts.size() == 1 && tagsCounts.elements().nextElement() == 1;
     }
 
-    public Dictionary<String, Double> getProbabilities() {
-        double total = 0;
-
-        Enumeration<Integer> elements = tagsCounts.elements();
-        while (elements.hasMoreElements()) {
-            Integer count = elements.nextElement();
-            total += count;
-        }
+    public Dictionary<String, Double> getProbabilities(List<Segment> segments) {
 
         Dictionary<String, Double> probabilities = new Hashtable<String, Double>();
 
@@ -49,7 +43,18 @@ public class Segment {
             String key = keys.nextElement();
             Integer count = tagsCounts.get(key);
 
-            probabilities.put(key, count / total);
+            int totalTagCountInAllSegments = 0;
+            for (Segment segment: segments){
+                Enumeration<String> tagsInSegment = segment.getTagsCounts().keys();
+                while (tagsInSegment.hasMoreElements()){
+                    String currentTag = tagsInSegment.nextElement();
+                    if (currentTag.equals(key)){
+                        totalTagCountInAllSegments += segment.getTagsCounts().get(currentTag);
+                    }
+                }
+            }
+
+            probabilities.put(key, (double)count / totalTagCountInAllSegments);
         }
 
         return probabilities;

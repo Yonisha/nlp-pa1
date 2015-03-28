@@ -3,10 +3,8 @@ public class State{
     private State previousState;
     private double maxProb;
 
-    public State(String tag, State previousState, double maxProb){
+    public State(String tag){
         this.tag = tag;
-        this.previousState = previousState;
-        this.maxProb = maxProb;
     }
 
     public String getTag(){
@@ -19,5 +17,13 @@ public class State{
 
     public double getMaxProb(){
         return this.maxProb;
+    }
+
+    public void setPreviousState(State previousState){
+        this.previousState = previousState;
+    }
+
+    public void setMaxProb(double maxProb){
+        this.maxProb = maxProb;
     }
 }

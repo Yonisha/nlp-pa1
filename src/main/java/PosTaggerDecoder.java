@@ -44,8 +44,6 @@ public class PosTaggerDecoder {
 
         FileHelper.writeLinesToFile(outputLines, outputFileName);
 
-        for (String outputLine: outputLines){
-            System.out.println(outputLine);
-        }
+        outputLines.forEach(System.out::println);
     }
 }

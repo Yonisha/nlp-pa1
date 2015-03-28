@@ -14,35 +14,34 @@ public class SentenceDecoder{
     public List<String> decode(InputSentence sentence){
 
         List<String> alphabet = sentence.getSegments();
-
-
-
+        // move to main decoder and do once
+        List<State> states = createStates();
 
 
         return sentence.getSegments();
     }
 
-    private void initialize(){
-
-        List<NgramWithProb> tagsForStartOfSentence = getInitializationTags();
-//        for (NgramWithProb ngramWithProb: tagsForStartOfSentence){
-//            new State()
-//        }
-
-
-    }
-
-    private List<NgramWithProb> getInitializationTags(){
-        List<NgramWithProb> tags = new ArrayList<>();
-        for (String line: this.stateTransitionProbabilities){
-            if (line.contains("[s]")){
+    private Set<State> initialize(Set<State> states) {
+        for (String line : this.stateTransitionProbabilities) {
+            if (line.contains("[s]")) {
                 String[] partsOfLine = line.split("\t");
-                tags.add(new NgramWithProb(partsOfLine[1], Double.parseDouble(partsOfLine[0])));
+                String[] tags = partsOfLine[1].split(" ");
+                String tag1 = tags[0];
+                String tag2 = tags[1];
+                double prob = Double.parseDouble(partsOfLine[0]);
+                while (states.iterator().hasNext()){
+                    State currentState = states.iterator().next();
+                    if (currentState.getTag().equals(tag2)){
+                        currentState.setPreviousState(new State(tag1));
+                        currentState.setMaxProb(prob);
+                    }
+                }
             }
         }
 
-        return tags;
+        return states;
     }
+
 
     private List<State> createStates(){
 
@@ -58,12 +57,8 @@ public class SentenceDecoder{
 
         List<State> states = new ArrayList<>();
 
-        for (String line: this.stateTransitionProbabilities) {
-            String[] partsOfLine = line.split("\t");
-            double prob = Double.parseDouble(partsOfLine[0]);
-            String[] tags = partsOfLine[1].split(" ");
-            String tag1 = tags[0];
-            String tag2 = tags[1];
+        for (String uniqueTag: uniqueTags){
+            states.add(new State(uniqueTag));
         }
 
         return states;
