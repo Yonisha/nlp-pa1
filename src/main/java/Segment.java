@@ -13,8 +13,13 @@ public class Segment {
     public Segment(String name) {
         this.name = name;
     }
+
     public String getText(){
         return name;
+    }
+
+    public Dictionary<String, Integer> getTagsCounts(){
+        return tagsCounts;
     }
 
     public void increment(String tag) {
@@ -23,8 +28,12 @@ public class Segment {
         if (tagCount == null) {
             tagsCounts.put(tag, 1);
         }else{
-            tagCount++;
+            tagsCounts.put(tag, tagCount + 1);
         }
+    }
+
+    public boolean appearsOnce(){
+        return tagsCounts.size() == 1 && tagsCounts.elements().nextElement() == 1;
     }
 
     public Dictionary<String, Double> getProbabilities() {

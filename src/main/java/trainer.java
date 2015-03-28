@@ -80,21 +80,35 @@ public class trainer {
         lex.createNewFile();
         FileWriter fileWriter = new FileWriter(lex);
 
-        for (Segment segment : segments) {
-            String outputLine = segment.getText();
-            Dictionary<String, Double> probabilities = segment.getProbabilities();
+        Segment unknownSegment = new Segment("UNK");
 
-            Enumeration<String> keys = probabilities.keys();
-            while (keys.hasMoreElements()) {
-                String currentKey = keys.nextElement();
-                Double prob = probabilities.get(currentKey);
-                outputLine += "\t" + currentKey + "\t" + prob;
+        for (Segment segment : segments) {
+            if (segment.appearsOnce()){
+                unknownSegment.increment(segment.getTagsCounts().keys().nextElement());
+                continue;
             }
 
-
-            fileWriter.append(outputLine + "\r\n");
+            String outputLine = getLexLinePerSegment(segment);
+            fileWriter.append(outputLine);
         }
 
+        String outputLineForUNK = getLexLinePerSegment(unknownSegment);
+        fileWriter.append(outputLineForUNK);
+
         fileWriter.close();
+    }
+
+    private static String getLexLinePerSegment(Segment segment){
+        String outputLine = segment.getText();
+        Dictionary<String, Double> probabilities = segment.getProbabilities();
+
+        Enumeration<String> keys = probabilities.keys();
+        while (keys.hasMoreElements()) {
+            String currentKey = keys.nextElement();
+            Double prob = probabilities.get(currentKey);
+            outputLine += "\t" + currentKey + "\t" + prob;
+        }
+
+        return outputLine + "\r\n";
     }
 }
