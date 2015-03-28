@@ -25,8 +25,9 @@ public class PosTagger {
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
         decoder.decode(testFile, taggedTestFile);
 
-
-//        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
+        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
 //        evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
+        // TODO should use above row that actually gets the taggedTestFile and not following row which is here only for testing the evaluate code
+        evaluator.evaluate(testFile, "C:/NLP/heb-pos-2.gold", goldFile, evaluationFile);
     }
 }

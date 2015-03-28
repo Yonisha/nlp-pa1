@@ -63,17 +63,36 @@ public class PosTaggerEvaluator{
         outputLines.add("# sent-num:\tword-accuracy\tsent-accuracy");
 
         sentenceAccuracies.forEach(sa -> outputLines.addAll(createOutputLinesPerSentenceAccuracy(sa)));
+        outputLines.add("#----------------------------------------------------------------------------------------------");
 
-        // TODO create avg row
+        double sumOfFullSentenceAccuracies = 0;
+        double sumOfWordAccuracies = 0;
+        int amountOfSentences = sentenceAccuracies.size();
+        for (SentenceAccuracy sentenceAccuracy: sentenceAccuracies){
+            sumOfFullSentenceAccuracies += sentenceAccuracy.getSentenceAccuracy();
+            sumOfWordAccuracies += sentenceAccuracy.getAvgWordAccuracy();
+        }
+
+        double avgFullSentenceAccuracy = sumOfFullSentenceAccuracies / amountOfSentences;
+        double avgWordAccuracy = sumOfWordAccuracies / amountOfSentences;
+
+        // avg row
+        outputLines.add(createOutputLinePerWordAccuracy("macro-avg", avgWordAccuracy, avgFullSentenceAccuracy));
         return outputLines;
     }
 
     private List<String> createOutputLinesPerSentenceAccuracy(SentenceAccuracy sentenceAccuracy){
         List<String> outputLines = new ArrayList<>();
+        String sentenceNumAsString = "" + sentenceAccuracy.getSentenceNum();
         double fullSentenceAccuracy = sentenceAccuracy.getSentenceAccuracy();
-//        for (Double wordAccuracy: sentenceAccuracy.getWordAccuracies()){
-//
-//        }
+        for (Double wordAccuracy: sentenceAccuracy.getWordAccuracies()){
+            outputLines.add(createOutputLinePerWordAccuracy(sentenceNumAsString, wordAccuracy, fullSentenceAccuracy));
+        }
+
         return outputLines;
+    }
+
+    private String createOutputLinePerWordAccuracy(String sentenceNum, double wordAccuracy, double sentenceAccuracy){
+        return sentenceNum + "\t" + wordAccuracy + "\t" + sentenceAccuracy;
     }
 }

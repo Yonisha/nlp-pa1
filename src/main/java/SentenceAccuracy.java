@@ -22,4 +22,15 @@ public class SentenceAccuracy{
     public int getSentenceNum(){
         return this.sentenceNum;
     }
+
+    public double getAvgWordAccuracy(){
+        double sumOfWordAccuracies = 0;
+        int amountOfWords = this.wordAccuracies.size();
+        for (double wordAccuracy: this.wordAccuracies){
+            sumOfWordAccuracies += wordAccuracy;
+        }
+
+        double avgWordAccuracies = sumOfWordAccuracies / amountOfWords;
+        return avgWordAccuracies;
+    }
 }
