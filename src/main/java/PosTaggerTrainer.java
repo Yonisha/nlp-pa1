@@ -13,9 +13,8 @@ public class PosTaggerTrainer {
         this.maxNgramLength = maxNgramLength;
     }
 
-    public void train() throws IOException {
+    public TrainerResult train() throws IOException {
         BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos-small.train"));
-
 
         List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
@@ -47,23 +46,41 @@ public class PosTaggerTrainer {
             System.out.println(sentences.get(i).toString());
         }
 
-        createLexFile();
-        createGramFile(sentences, maxNgramLength);
+        // write Lex file
+        List<String> lexOutputLines = createLexOutputLines();
+        writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
+
+        // write grams file
+        List<String> gramOutputLines = createGramFile(sentences, maxNgramLength);
+        writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
+
+        return new TrainerResult(gramOutputLines, lexOutputLines);
     }
 
-    private void createGramFile(List<Sentence> sentences, int maxNGramLength) throws IOException {
-        File gram = new File("c:/NLP/heb-pos.gram");
-        gram.createNewFile();
-        FileWriter fileWriter = new FileWriter(gram);
+    private List<String> createGramFile(List<Sentence> sentences, int maxNGramLength) throws IOException {
 
+        List<String> outputLines = new ArrayList<>();
         NGramsCreator nGramsCreator = new NGramsCreator();
         List<NgramsByLength> ngramsByLengths = nGramsCreator.create(maxNGramLength, sentences);
         for (NgramsByLength ngramsByLength: ngramsByLengths){
-            fileWriter.append(ngramsByLength.toString() + "\r\n");
+            outputLines.add(ngramsByLength.toString() + "\r\n");
         }
 
-        fileWriter.close();
+        return outputLines;
     }
+
+    private void writeLinesToFile(List<String> lines, String fileName) throws IOException {
+        File file = new File("c:/NLP/heb-pos.lex");
+        file.createNewFile();
+        FileWriter fileWriter = new FileWriter(file);
+
+        for (String line: lines){
+            fileWriter.append(line);
+        }
+
+        fileWriter.flush();
+    }
+
     private Segment getSegment(String segmentName) {
         for (Segment segmentItem : segments) {
             if (segmentItem.getText().equalsIgnoreCase(segmentName)) {
@@ -77,11 +94,9 @@ public class PosTaggerTrainer {
         return segment;
     }
 
-    private void createLexFile() throws IOException {
-        File lex = new File("c:/NLP/heb-pos.lex");
-        lex.createNewFile();
-        FileWriter fileWriter = new FileWriter(lex);
+    private List<String> createLexOutputLines() throws IOException {
 
+        List<String> outputLines = new ArrayList<>();
         Segment unknownSegment = new Segment("UNK");
 
         for (Segment segment : segments) {
@@ -91,13 +106,13 @@ public class PosTaggerTrainer {
             }
 
             String outputLine = getLexLinePerSegment(segment);
-            fileWriter.append(outputLine);
+            outputLines.add(outputLine);
         }
 
         String outputLineForUNK = getLexLinePerSegment(unknownSegment);
-        fileWriter.append(outputLineForUNK);
+        outputLines.add(outputLineForUNK);
 
-        fileWriter.close();
+        return outputLines;
     }
 
     private String getLexLinePerSegment(Segment segment){

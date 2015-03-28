@@ -1,4 +1,7 @@
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class PosTagger {
 
@@ -7,6 +10,10 @@ public class PosTagger {
         int maxNgramLength = 2;
 
         PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
-        trainer.train();
+        TrainerResult trainerResult = trainer.train();
+
+        PosTaggerDecoder decoder = new PosTaggerDecoder(trainerResult);
+        decoder.decode();
+
     }
 }
