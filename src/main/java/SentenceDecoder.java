@@ -3,7 +3,7 @@ import java.util.*;
 public class SentenceDecoder implements ISentenceDecoder{
 
     private List<NgramsByLength> stateTransitionProbabilities;
-    private List<String> symbolEmissionProbabilities;
+    private List<SegmentWithTagProbs> symbolEmissionProbabilities;
 
 
     public SentenceDecoder(TrainerResult trainerResult){
@@ -13,135 +13,105 @@ public class SentenceDecoder implements ISentenceDecoder{
 
     public List<String> decode(InputSentence sentence){
 
-        List<String> alphabet = sentence.getSegments();
+        List<String> segments = sentence.getSegments();
         // move to main decoder and do once
-        Set<State> states = createStates();
-        initialize(states, sentence);
+        List<String> tags = createTags();
 
+        // initialize
+        ProbWithPreviousTag[][] matrix = new ProbWithPreviousTag[segments.size()][tags.size()];
+        for (int j = 0; j <tags.size(); j++) {
+            double transitionProb = getTransitionProbForTwoTags("[s]", tags.get(j));
+            double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(0));
+            matrix[0][j] = new ProbWithPreviousTag(tags.get(j), null, transitionProb*emissionProb);
+        }
 
-        return sentence.getSegments();
-    }
+        for (int i = 1; i < segments.size(); i++) {
+            for (int j = 0; j <tags.size(); j++) {
 
-//    private List<State> viterbiRec(int iteration, Set<State> states, List<String> segmentsInSentence){
-//        // Base case
-//        if (segmentsInSentence.size() == 0) {
-//            State maxLastIteration = getMaxLastIteration(iteration, states);
-//            ArrayList<State> bestPath = new ArrayList<>();
-//            bestPath.add(maxLastIteration);
-//
-//            return bestPath;
-//        }
-//
-//        String currentSegment = segmentsInSentence.get(0);
-//        segmentsInSentence.remove(0);
-//
-//        return viterbiRec(iteration++, states, segmentsInSentence);
-//    }
+                double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(i));
 
-//    private State getMaxLastIteration(int iteration, Set<State> states) {
-//
-//        State stateWithMaxProb = null;
-//        double maxProb = 0;
-//        for (State state : states) {
-//            double currentMaxProb = state.getLastInnerState().getMaxProb();
-//            if (state.getIteration() == iteration && currentMaxProb > maxProb) {
-//                maxProb = currentMaxProb;
-//                stateWithMaxProb = state;
-//            }
-//        }
-//
-//        return stateWithMaxProb;
-//    }
+                double maxTransitionProb = -1;
+                ProbWithPreviousTag previousTagWithMaxProb = null;
+                for (int k = 0; k <tags.size(); k++) {
+                    double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
 
-//    private Set<State> initialize(Set<State> states, InputSentence sentence) {
-//        NgramsByLength bigrams = this.stateTransitionProbabilities.get(1);
-//        List<NgramWithProb> ngramsWithProb = bigrams.getNgramsWithProb();
-//        for (NgramWithProb ngramWithProb: ngramsWithProb) {
-//            String tag1 = ngramWithProb.getNgramTags()[0];
-//            String tag2 = ngramWithProb.getNgramTags()[1];
-//            if (tag1.equals("[s]")) {
-//                double transitionProb = ngramWithProb.getProb();
-//
-//                Iterator<State> iterator = states.iterator();
-//                while (iterator.hasNext()){
-//                    State currentState = iterator.next();
-//                    if (currentState.getTag().equals(tag2)){
-//                        double emissionProb = getEmissionProbForSegmentAndTag(sentence.getSegments().get(0), tag2);
-//                        currentState.addInnerState(transitionProb*emissionProb, new State(tag1));
-//                    }
-//                }
-//            }
-//        }
-//
-//        return states;
-//    }
-
-
-    private Set<State> initialize(Set<State> states, InputSentence sentence) {
-        NgramsByLength bigrams = this.stateTransitionProbabilities.get(1);
-        List<NgramWithProb> ngramsWithProb = bigrams.getNgramsWithProb();
-        for (NgramWithProb ngramWithProb: ngramsWithProb) {
-            String tag1 = ngramWithProb.getNgramTags()[0];
-            String tag2 = ngramWithProb.getNgramTags()[1];
-            if (tag1.equals("[s]")) {
-                double transitionProb = ngramWithProb.getProb();
-
-                Iterator<State> iterator = states.iterator();
-                while (iterator.hasNext()){
-                    State currentState = iterator.next();
-                    if (currentState.getTag().equals(tag2)){
-                        double emissionProb = getEmissionProbForSegmentAndTag(sentence.getSegments().get(0), tag2);
-                        currentState.addInnerState(transitionProb*emissionProb, new State(tag1));
+                    if (currentTransitionProb > maxTransitionProb){
+                        maxTransitionProb = currentTransitionProb;
+                        previousTagWithMaxProb = matrix[i-1][k];
                     }
                 }
+
+                double maxProbOfPrevious = previousTagWithMaxProb.getProb();
+                double finalProb = emissionProb * maxTransitionProb * maxProbOfPrevious;
+                matrix[i][j] = new ProbWithPreviousTag(tags.get(j), previousTagWithMaxProb, finalProb);
             }
         }
 
-        return states;
+        // get best tagging
+        double maxProb = -1;
+        ProbWithPreviousTag max = null;
+        for (int j = 0; j < tags.size(); j++) {
+            ProbWithPreviousTag current = matrix[segments.size() - 1][j];
+            if (current.getProb() > maxProb){
+                maxProb = current.getProb();
+                max = current;
+            }
+        }
+
+        List<String> taggingResult = new ArrayList<>();
+        ProbWithPreviousTag currentTag = max;
+        taggingResult.add(currentTag.getTag());
+        while (currentTag.getPrevious() != null){
+            currentTag = currentTag.getPrevious();
+            taggingResult.add(0, currentTag.getTag());
+        }
+
+        return taggingResult;
     }
 
-
-    private double getEmissionProbForSegmentAndTag(String segment, String tag){
-        for (String line : this.symbolEmissionProbabilities) {
-            String[] partsOfLine = line.split("\t");
-            String wordInLine = partsOfLine[0];
-            if (segment.equals(wordInLine)){
-                for (int i = 1; i < partsOfLine.length; i++) {
-                    String[] tagAndProb = partsOfLine[i].split(" ");
-                    if (tagAndProb[0].equals(tag)){
-                        return Double.parseDouble(tagAndProb[1]);
-                    }
-                }
+    private double getEmissionProbForTagAndWord(String tag, String word) {
+        Optional<SegmentWithTagProbs> matchingSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals(word)).findFirst();
+        if (matchingSegment.isPresent()){
+            return getProbByTag(tag, matchingSegment.get());
+        }else{
+            Optional<SegmentWithTagProbs> unkSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals("UNK")).findFirst();
+            if (unkSegment.isPresent()){
+                return getProbByTag(tag, unkSegment.get());
+            }else{
+                throw new IllegalArgumentException("Missing UNK segment!!!");
             }
         }
+    }
 
-        // TODO hack
-        String unknown = this.symbolEmissionProbabilities.get(this.symbolEmissionProbabilities.size()-1);
-        String[] partsOfLine = unknown.split("\t");
-        String wordInLine = partsOfLine[0];
-        for (int i = 1; i < partsOfLine.length; i++) {
-            String[] tagAndProb = partsOfLine[i].split(" ");
-            if (tagAndProb[0].equals(tag)){
-                return Double.parseDouble(tagAndProb[1]);
+    private double getProbByTag(String tag, SegmentWithTagProbs segment){
+        Enumeration<String> keys = segment.getTagsProbs().keys();
+        while (keys.hasMoreElements()){
+            String currentTagForSegment = keys.nextElement();
+            if (currentTagForSegment.equals(tag)){
+                double prob = segment.getTagsProbs().get(tag);
+                return prob;
             }
         }
-
         return 0;
     }
 
+    private double getTransitionProbForTwoTags(String firstTag, String secondTag) {
+        NgramsByLength allBigramTransitions = this.stateTransitionProbabilities.get(1);
+        String currentTagBigram = firstTag + " " + secondTag;
+        Optional<NgramWithProb> first = allBigramTransitions.getNgramsWithProb().stream().filter(n -> n.getNgram().equals(currentTagBigram)).findFirst();
+        return first.isPresent() ? first.get().getProb() : 0;
+    }
 
-    private Set<State> createStates(){
-        Set<String> uniqueTags = new HashSet<>();
+    private List<String> createTags(){
+        List<String> uniqueTags = new ArrayList<>();
         NgramsByLength unigrams = this.stateTransitionProbabilities.get(0);
         for (NgramWithProb ngramWithProb: unigrams.getNgramsWithProb()){
-            uniqueTags.add(ngramWithProb.getNgramTags()[0]);
+            String currentTag = ngramWithProb.getNgramTags()[0];
+            if (!uniqueTags.contains(currentTag)){
+                uniqueTags.add(currentTag);
+            }
         }
 
-        Set<State> states = new HashSet<>();
-        for (String uniqueTag: uniqueTags){
-            states.add(new State(uniqueTag));
-        }
-
-        return states;
+        return uniqueTags;
     }
 }

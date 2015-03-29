@@ -7,14 +7,14 @@ import java.util.List;
 public class PosTaggerTrainer {
 
     private int maxNgramLength;
-    private List<Segment> segmentsWithoutUnknown = new ArrayList<Segment>();
+    private List<SegmentWithTagCounts> segmentsWithoutUnknown = new ArrayList<SegmentWithTagCounts>();
 
     public PosTaggerTrainer(int maxNgramLength){
         this.maxNgramLength = maxNgramLength;
     }
 
     public TrainerResult train() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos-small.train"));
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos.train"));
 
         List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
@@ -35,14 +35,16 @@ public class PosTaggerTrainer {
             String tag = split[1];
             currentSentenceSegments.add(tag);
 
-            Segment segment = getSegment(segmentName);
+            SegmentWithTagCounts segment = getSegment(segmentName);
             segment.increment(tag);
 
             line = bufferedReader.readLine();
         }
 
         // write Lex file
-        List<String> lexOutputLines = createLexOutputLines();
+        List<SegmentWithTagCounts> lexSegmentsWithCount = createLexSegments();
+        List<SegmentWithTagProbs> lexSegments = createSegmentsWithTagProbs(lexSegmentsWithCount);
+        List<String> lexOutputLines = createLexLines(lexSegments);
         FileHelper.writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
 
         // write grams file
@@ -50,7 +52,7 @@ public class PosTaggerTrainer {
         List<String> gramOutputLines = createGramFile(ngramsByLength);
         FileHelper.writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
 
-        return new TrainerResult(ngramsByLength, lexOutputLines);
+        return new TrainerResult(ngramsByLength, lexSegments);
     }
 
     private List<NgramsByLength> createNgramsByLength(List<Sentence> sentences, int maxNGramLength) throws IOException {
@@ -73,25 +75,43 @@ public class PosTaggerTrainer {
         return outputLines;
     }
 
-    private Segment getSegment(String segmentName) {
-        for (Segment segmentItem : segmentsWithoutUnknown) {
+    private SegmentWithTagCounts getSegment(String segmentName) {
+        for (SegmentWithTagCounts segmentItem : segmentsWithoutUnknown) {
             if (segmentItem.getText().equalsIgnoreCase(segmentName)) {
                 return segmentItem;
             }
         }
 
-        Segment segment = new Segment(segmentName);
+        SegmentWithTagCounts segment = new SegmentWithTagCounts(segmentName);
         segmentsWithoutUnknown.add(segment);
 
         return segment;
     }
 
-    private List<String> createLexOutputLines() throws IOException {
+    private List<SegmentWithTagProbs> createSegmentsWithTagProbs(List<SegmentWithTagCounts> segments){
+        List<SegmentWithTagProbs> segmentsToReturn = new ArrayList<>();
+        for (SegmentWithTagCounts segment : segments) {
+            segmentsToReturn.add(createSegmentWithTagProbsFromSegmentWithCount(segment, segments));
+        }
 
-        Segment unknownSegment = new Segment("UNK");
+        return segmentsToReturn;
+    }
 
-        List<Segment> segmentsAfterConsideringUnknown = new ArrayList<>();
-        for (Segment segment : segmentsWithoutUnknown) {
+    private List<String> createLexLines(List<SegmentWithTagProbs> segments){
+        List<String> linesToReturn = new ArrayList<>();
+        for (SegmentWithTagProbs segment : segments) {
+            linesToReturn.add(getLexLinePerSegment(segment));
+        }
+
+        return linesToReturn;
+    }
+
+    private List<SegmentWithTagCounts> createLexSegments() throws IOException {
+
+        SegmentWithTagCounts unknownSegment = new SegmentWithTagCounts("UNK");
+
+        List<SegmentWithTagCounts> segmentsAfterConsideringUnknown = new ArrayList<>();
+        for (SegmentWithTagCounts segment : segmentsWithoutUnknown) {
             if (segment.appearsOnce()){
                 unknownSegment.increment(segment.getTagsCounts().keys().nextElement());
                 continue;
@@ -101,19 +121,17 @@ public class PosTaggerTrainer {
         }
 
         segmentsAfterConsideringUnknown.add(unknownSegment);
-
-        List<String> outputLines = new ArrayList<>();
-        for (Segment segment : segmentsAfterConsideringUnknown) {
-            String outputLine = getLexLinePerSegment(segment, segmentsAfterConsideringUnknown);
-            outputLines.add(outputLine);
-        }
-
-        return outputLines;
+        return segmentsAfterConsideringUnknown;
     }
 
-    private String getLexLinePerSegment(Segment segment, List<Segment> segments){
-        String outputLine = segment.getText();
+    private SegmentWithTagProbs createSegmentWithTagProbsFromSegmentWithCount(SegmentWithTagCounts segment, List<SegmentWithTagCounts> segments){
         Dictionary<String, Double> probabilities = segment.getProbabilities(segments);
+        return new SegmentWithTagProbs(segment.getText(), probabilities);
+    }
+
+    private String getLexLinePerSegment(SegmentWithTagProbs segment){
+        String outputLine = segment.getName();
+        Dictionary<String, Double> probabilities = segment.getTagsProbs();
 
         Enumeration<String> keys = probabilities.keys();
         while (keys.hasMoreElements()) {

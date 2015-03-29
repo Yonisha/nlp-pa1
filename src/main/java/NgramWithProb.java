@@ -13,6 +13,10 @@ public class NgramWithProb{
         return ngram.split(" ");
     }
 
+    public String getNgram(){
+        return ngram;
+    }
+
     public double getProb(){
         return prob;
     }

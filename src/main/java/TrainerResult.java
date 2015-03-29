@@ -2,9 +2,9 @@ import java.util.List;
 
 public class TrainerResult{
     private List<NgramsByLength> stateTransitionProbabilities;
-    private List<String> symbolEmissionProbabilities;
+    private List<SegmentWithTagProbs> symbolEmissionProbabilities;
 
-    public TrainerResult(List<NgramsByLength> stateTransitionProbabilities, List<String> symbolEmissionProbabilities){
+    public TrainerResult(List<NgramsByLength> stateTransitionProbabilities, List<SegmentWithTagProbs> symbolEmissionProbabilities){
         this.stateTransitionProbabilities = stateTransitionProbabilities;
         this.symbolEmissionProbabilities = symbolEmissionProbabilities;
     }
@@ -13,7 +13,7 @@ public class TrainerResult{
         return this.stateTransitionProbabilities;
     }
 
-    public List<String> getSymbolEmissionProbabilities(){
+    public List<SegmentWithTagProbs> getSymbolEmissionProbabilities(){
         return this.symbolEmissionProbabilities;
     }
 }
