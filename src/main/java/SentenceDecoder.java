@@ -30,25 +30,25 @@ public class SentenceDecoder implements ISentenceDecoder{
 
                 double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(i));
 
-                double maxTransitionProb = -1;
+                double maxTransitionProbWithProbOfPrevious = -Double.MAX_VALUE;
                 ProbWithPreviousTag previousTagWithMaxProb = null;
                 for (int k = 0; k <tags.size(); k++) {
                     double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
-
-                    if (currentTransitionProb > maxTransitionProb){
-                        maxTransitionProb = currentTransitionProb;
+                    double probOfPrevious = matrix[i-1][k].getProb();
+                    double transitionProbWithProbOfPrevious = currentTransitionProb + probOfPrevious;
+                    if (transitionProbWithProbOfPrevious > maxTransitionProbWithProbOfPrevious){
+                        maxTransitionProbWithProbOfPrevious = transitionProbWithProbOfPrevious;
                         previousTagWithMaxProb = matrix[i-1][k];
                     }
                 }
 
-                double maxProbOfPrevious = previousTagWithMaxProb.getProb();
-                double finalProb = emissionProb + maxTransitionProb + maxProbOfPrevious;
+                double finalProb = emissionProb + maxTransitionProbWithProbOfPrevious;
                 matrix[i][j] = new ProbWithPreviousTag(tags.get(j), previousTagWithMaxProb, finalProb);
             }
         }
 
         // get best tagging
-        double maxProb = -1;
+        double maxProb = -Double.MAX_VALUE;
         ProbWithPreviousTag max = null;
         for (int j = 0; j < tags.size(); j++) {
             ProbWithPreviousTag current = matrix[segments.size() - 1][j];
@@ -115,7 +115,7 @@ public class SentenceDecoder implements ISentenceDecoder{
         NgramsByLength unigrams = this.stateTransitionProbabilities.get(0);
         for (NgramWithProb ngramWithProb: unigrams.getNgramsWithProb()){
             String currentTag = ngramWithProb.getNgramTags()[0];
-            if (!uniqueTags.contains(currentTag)){
+            if (!uniqueTags.contains(currentTag) && currentTag != "[s]" && currentTag != "[e]"){
                 uniqueTags.add(currentTag);
             }
         }
@@ -124,6 +124,9 @@ public class SentenceDecoder implements ISentenceDecoder{
     }
 
     private double getLogProb(double prob){
-        return -Math.log(prob);
+        if (prob == 0)
+            return -Double.MAX_VALUE;
+
+        return Math.log(prob);
     }
 }
