@@ -22,7 +22,7 @@ public class SentenceDecoder implements ISentenceDecoder{
         for (int j = 0; j <tags.size(); j++) {
             double transitionProb = getTransitionProbForTwoTags("[s]", tags.get(j));
             double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(0));
-            matrix[0][j] = new ProbWithPreviousTag(tags.get(j), null, transitionProb*emissionProb);
+            matrix[0][j] = new ProbWithPreviousTag(tags.get(j), null, transitionProb + emissionProb);
         }
 
         for (int i = 1; i < segments.size(); i++) {
@@ -42,7 +42,7 @@ public class SentenceDecoder implements ISentenceDecoder{
                 }
 
                 double maxProbOfPrevious = previousTagWithMaxProb.getProb();
-                double finalProb = emissionProb * maxTransitionProb * maxProbOfPrevious;
+                double finalProb = emissionProb + maxTransitionProb + maxProbOfPrevious;
                 matrix[i][j] = new ProbWithPreviousTag(tags.get(j), previousTagWithMaxProb, finalProb);
             }
         }
@@ -56,6 +56,14 @@ public class SentenceDecoder implements ISentenceDecoder{
                 maxProb = current.getProb();
                 max = current;
             }
+        }
+
+        for (int i = 0; i <segments.size(); i++) {
+            for (int j = 0; j < tags.size(); j++) {
+                String prev = matrix[i][j].getPrevious() != null ? matrix[i][j].getPrevious().getTag() : "null";
+                System.out.print("Tag: " + matrix[i][j].getTag() + ", Prob: " + matrix[i][j].getProb() + ", Prev: " + prev + " /// ");
+            }
+            System.out.println();
         }
 
         List<String> taggingResult = new ArrayList<>();
@@ -72,11 +80,11 @@ public class SentenceDecoder implements ISentenceDecoder{
     private double getEmissionProbForTagAndWord(String tag, String word) {
         Optional<SegmentWithTagProbs> matchingSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals(word)).findFirst();
         if (matchingSegment.isPresent()){
-            return getProbByTag(tag, matchingSegment.get());
+            return getLogProb(getProbByTag(tag, matchingSegment.get()));
         }else{
             Optional<SegmentWithTagProbs> unkSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals("UNK")).findFirst();
             if (unkSegment.isPresent()){
-                return getProbByTag(tag, unkSegment.get());
+                return getLogProb(getProbByTag(tag, unkSegment.get()));
             }else{
                 throw new IllegalArgumentException("Missing UNK segment!!!");
             }
@@ -99,7 +107,7 @@ public class SentenceDecoder implements ISentenceDecoder{
         NgramsByLength allBigramTransitions = this.stateTransitionProbabilities.get(1);
         String currentTagBigram = firstTag + " " + secondTag;
         Optional<NgramWithProb> first = allBigramTransitions.getNgramsWithProb().stream().filter(n -> n.getNgram().equals(currentTagBigram)).findFirst();
-        return first.isPresent() ? first.get().getProb() : 0;
+        return getLogProb(first.isPresent() ? first.get().getProb() : 0);
     }
 
     private List<String> createTags(){
@@ -113,5 +121,9 @@ public class SentenceDecoder implements ISentenceDecoder{
         }
 
         return uniqueTags;
+    }
+
+    private double getLogProb(double prob){
+        return -Math.log(prob);
     }
 }
