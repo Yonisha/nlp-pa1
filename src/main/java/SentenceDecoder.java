@@ -36,7 +36,7 @@ public class SentenceDecoder implements ISentenceDecoder{
                     double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
                     double probOfPrevious = matrix[i-1][k].getProb();
                     double transitionProbWithProbOfPrevious = currentTransitionProb + probOfPrevious;
-                    if (transitionProbWithProbOfPrevious > maxTransitionProbWithProbOfPrevious){
+                    if (transitionProbWithProbOfPrevious >= maxTransitionProbWithProbOfPrevious){
                         maxTransitionProbWithProbOfPrevious = transitionProbWithProbOfPrevious;
                         previousTagWithMaxProb = matrix[i-1][k];
                     }
@@ -52,19 +52,19 @@ public class SentenceDecoder implements ISentenceDecoder{
         ProbWithPreviousTag max = null;
         for (int j = 0; j < tags.size(); j++) {
             ProbWithPreviousTag current = matrix[segments.size() - 1][j];
-            if (current.getProb() > maxProb){
+            if (current.getProb() >= maxProb){
                 maxProb = current.getProb();
                 max = current;
             }
         }
 
-        for (int i = 0; i <segments.size(); i++) {
-            for (int j = 0; j < tags.size(); j++) {
-                String prev = matrix[i][j].getPrevious() != null ? matrix[i][j].getPrevious().getTag() : "null";
-                System.out.print("Tag: " + matrix[i][j].getTag() + ", Prob: " + matrix[i][j].getProb() + ", Prev: " + prev + " /// ");
-            }
-            System.out.println();
-        }
+//        for (int i = 0; i <segments.size(); i++) {
+//            for (int j = 0; j < tags.size(); j++) {
+//                String prev = matrix[i][j].getPrevious() != null ? matrix[i][j].getPrevious().getTag() : "null";
+//                System.out.print("Tag: " + matrix[i][j].getTag() + ", Prob: " + matrix[i][j].getProb() + ", Prev: " + prev + " /// ");
+//            }
+//            System.out.println();
+//        }
 
         List<String> taggingResult = new ArrayList<>();
         ProbWithPreviousTag currentTag = max;

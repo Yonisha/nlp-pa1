@@ -38,6 +38,6 @@ public class PosTaggerDecoder {
 
         FileHelper.writeLinesToFile(outputLines, outputFileName);
 
-        outputLines.forEach(System.out::println);
+//        outputLines.forEach(System.out::println);
     }
 }
