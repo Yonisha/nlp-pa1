@@ -13,19 +13,16 @@ public class PosTaggerDecoder {
     }
 
     public void decode(String inputFileName, String outputFileName) throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(inputFileName));
+        List<String> inputLines = FileHelper.readLinesFromFile(inputFileName);
         List<InputSentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
-        String line = bufferedReader.readLine();
-        while (line != null) {
+        for (String line: inputLines) {
             if (line.equals("")){
                 sentences.add(new InputSentence(currentSentenceSegments));
                 currentSentenceSegments = new ArrayList<>();
             }else{
                 currentSentenceSegments.add(line);
             }
-
-            line = bufferedReader.readLine();
         }
 
         List<String> outputLines = new ArrayList<>();

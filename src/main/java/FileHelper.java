@@ -23,7 +23,7 @@ public class FileHelper{
         FileWriter fileWriter = new FileWriter(file);
 
         for (String line: lines){
-            fileWriter.append(line + "\r\n");
+            fileWriter.append(line + "\n");
         }
 
         fileWriter.close();

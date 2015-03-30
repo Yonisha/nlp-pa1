@@ -16,29 +16,26 @@ public class PosTaggerEvaluator{
 
     public void evaluate(String testFileName, String testTaggedFileName, String goldFileName, String evaluationFile) throws IOException {
 
+        List<String> taggedFileInputLines = FileHelper.readLinesFromFile(testTaggedFileName);
+        List<String> goldFileInputLines = FileHelper.readLinesFromFile(goldFileName);
 
-        BufferedReader taggedFileBufferedReader = new BufferedReader(new FileReader(testTaggedFileName));
-        BufferedReader goldFileBufferedReader = new BufferedReader(new FileReader(goldFileName));
+        if (taggedFileInputLines.size() != goldFileInputLines.size()){
+            throw new IllegalArgumentException("There was a problem with the decoder. The number of lines in the gold file and in the tagged file must be the same!");
+        }
 
-        // assuming gold and tagged have exact same amount of lines
-        String taggedFileLine = taggedFileBufferedReader.readLine();
-        String goldFileLine = goldFileBufferedReader.readLine();
         List<WordWithTag> decoderTaggingForCurrentSentence = new ArrayList<>();
         List<WordWithTag> goldTaggingForCurrentSentence = new ArrayList<>();
         List<SentenceStatistics> sentenceAccuracies = new ArrayList<>();
         int sentenceNum = 0;
-        while (goldFileLine != null) {
-            if (goldFileLine.equals("")){
+        for (int i = 0; i < taggedFileInputLines.size(); i++) {
+            if (goldFileInputLines.get(i).equals("")){
                 sentenceNum++;
                 SentenceStatistics evaluationForSentence = this.sentenceEvaluator.evaluate(sentenceNum, decoderTaggingForCurrentSentence, goldTaggingForCurrentSentence);
                 sentenceAccuracies.add(evaluationForSentence);
             }else{
-                decoderTaggingForCurrentSentence.add(createWordWithTagFromLine(taggedFileLine));
-                goldTaggingForCurrentSentence.add(createWordWithTagFromLine(goldFileLine));
+                decoderTaggingForCurrentSentence.add(createWordWithTagFromLine(taggedFileInputLines.get(i)));
+                goldTaggingForCurrentSentence.add(createWordWithTagFromLine(goldFileInputLines.get(i)));
             }
-
-            taggedFileLine = taggedFileBufferedReader.readLine();
-            goldFileLine = goldFileBufferedReader.readLine();
         }
 
         List<String> outputLines = createOutputLines(testFileName, goldFileName, sentenceAccuracies);
