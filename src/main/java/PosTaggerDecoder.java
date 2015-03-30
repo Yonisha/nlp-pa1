@@ -34,10 +34,9 @@ public class PosTaggerDecoder {
             for (int i = 0; i <tags.size(); i++) {
                 outputLines.add(sentence.getSegments().get(i) + "\t" + tags.get(i));
             }
+            outputLines.add("");
         }
 
         FileHelper.writeLinesToFile(outputLines, outputFileName);
-
-//        outputLines.forEach(System.out::println);
     }
 }

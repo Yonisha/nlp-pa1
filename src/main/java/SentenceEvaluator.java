@@ -1,12 +1,14 @@
-import java.util.ArrayList;
 import java.util.List;
 
 public class SentenceEvaluator{
-    public SentenceAccuracy evaluate(int sentenceNum, List<WordWithTag> decoderTaggingForCurrentSentence, List<WordWithTag> goldTaggingForCurrentSentence){
-        List<Double> wordAccuracies = new ArrayList<>();
-        for (int i = 0; i < decoderTaggingForCurrentSentence.size(); i++) {
-            wordAccuracies.add(1.0);
+    public SentenceStatistics evaluate(int sentenceNum, List<WordWithTag> decoderTaggingForCurrentSentence, List<WordWithTag> goldTaggingForCurrentSentence){
+        int correctTaggedSegments = 0;
+        int numberOfSegmentsInSentence = decoderTaggingForCurrentSentence.size();
+        for (int i = 0; i < numberOfSegmentsInSentence; i++) {
+            if (decoderTaggingForCurrentSentence.get(i).getTag().equals(goldTaggingForCurrentSentence.get(i).getTag())){
+                correctTaggedSegments += 1;
+            }
         }
-        return new SentenceAccuracy(sentenceNum, wordAccuracies, 1);
+        return new SentenceStatistics(sentenceNum, numberOfSegmentsInSentence, correctTaggedSegments);
     }
 }

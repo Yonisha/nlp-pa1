@@ -7,9 +7,12 @@ public class PosTagger {
         int maxNgramLength = 2;
         boolean useSmoothing = true; // need to implement
 
-        String testFile = "C:/NLP/heb-pos-small.test";
-        String taggedTestFile = "C:/NLP/heb-pos-small.tagged";
-        String evaluationFile = "C:/NLP/heb-pos-small.eval";
+        String trainFile = "C:/NLP/heb-pos.train";
+        String lexFile = "C:/NLP/heb-pos.lex";
+        String gramFile = "C:/NLP/heb-pos.gram";
+        String testFile = "C:/NLP/heb-pos.test";
+        String taggedTestFile = "C:/NLP/heb-pos.tagged";
+        String evaluationFile = "C:/NLP/heb-pos.eval";
         String goldFile = "C:/NLP/heb-pos.gold";
 
         // Naive tagging
@@ -19,15 +22,13 @@ public class PosTagger {
 
         // HMM Viterbi tagging
         PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
-        TrainerResult trainerResult = trainer.train();
+        TrainerResult trainerResult = trainer.train(trainFile, lexFile, gramFile);
         SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
 
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
         decoder.decode(testFile, taggedTestFile);
 
         PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
-//        evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
-        // TODO should use above row that actually gets the taggedTestFile and not following row which is here only for testing the evaluate code
-//        evaluator.evaluate(testFile, "C:/NLP/heb-pos-2.gold", goldFile, evaluationFile);
+        evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
     }
 }

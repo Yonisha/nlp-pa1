@@ -25,12 +25,12 @@ public class PosTaggerEvaluator{
         String goldFileLine = goldFileBufferedReader.readLine();
         List<WordWithTag> decoderTaggingForCurrentSentence = new ArrayList<>();
         List<WordWithTag> goldTaggingForCurrentSentence = new ArrayList<>();
-        List<SentenceAccuracy> sentenceAccuracies = new ArrayList<>();
+        List<SentenceStatistics> sentenceAccuracies = new ArrayList<>();
         int sentenceNum = 0;
         while (goldFileLine != null) {
             if (goldFileLine.equals("")){
                 sentenceNum++;
-                SentenceAccuracy evaluationForSentence = this.sentenceEvaluator.evaluate(sentenceNum, decoderTaggingForCurrentSentence, goldTaggingForCurrentSentence);
+                SentenceStatistics evaluationForSentence = this.sentenceEvaluator.evaluate(sentenceNum, decoderTaggingForCurrentSentence, goldTaggingForCurrentSentence);
                 sentenceAccuracies.add(evaluationForSentence);
             }else{
                 decoderTaggingForCurrentSentence.add(createWordWithTagFromLine(taggedFileLine));
@@ -50,7 +50,7 @@ public class PosTaggerEvaluator{
         return new WordWithTag(partsOfLine[0], partsOfLine[1]);
     }
 
-    private List<String> createOutputLines(String testFileName, String goldFileName, List<SentenceAccuracy> sentenceAccuracies){
+    private List<String> createOutputLines(String testFileName, String goldFileName, List<SentenceStatistics> sentenceStatisticses){
 
         List<String> outputLines = new ArrayList<>();
         outputLines.add("# Part-of-Speech Tagging Evaluation");
@@ -62,37 +62,26 @@ public class PosTaggerEvaluator{
         outputLines.add("");
         outputLines.add("# sent-num:\tword-accuracy\tsent-accuracy");
 
-        sentenceAccuracies.forEach(sa -> outputLines.addAll(createOutputLinesPerSentenceAccuracy(sa)));
+        sentenceStatisticses.forEach(ss -> outputLines.add(createOutputLinePerSentence("" + ss.getSentenceNum(), ss.getWordAccuracy(), ss.getSentenceAccuracy())));
         outputLines.add("#----------------------------------------------------------------------------------------------");
 
-        double sumOfFullSentenceAccuracies = 0;
-        double sumOfWordAccuracies = 0;
-        int amountOfSentences = sentenceAccuracies.size();
-        for (SentenceAccuracy sentenceAccuracy: sentenceAccuracies){
-            sumOfFullSentenceAccuracies += sentenceAccuracy.getSentenceAccuracy();
-            sumOfWordAccuracies += sentenceAccuracy.getAvgWordAccuracy();
+        double wordsWithCorrectTaggingForAllSentences = 0;
+        double totalWordsInAllSentences = 0;
+        int sentenceAccuracyAll = 0;
+        for (SentenceStatistics sentenceStatistics: sentenceStatisticses){
+            wordsWithCorrectTaggingForAllSentences += sentenceStatistics.getNumberOfCorrectTaggedSegments();
+            totalWordsInAllSentences += sentenceStatistics.getNumberOfSegmentsInSentence();
+            sentenceAccuracyAll += sentenceStatistics.getSentenceAccuracy();
         }
 
-        double avgFullSentenceAccuracy = sumOfFullSentenceAccuracies / amountOfSentences;
-        double avgWordAccuracy = sumOfWordAccuracies / amountOfSentences;
+        double wordAccuracyAll = wordsWithCorrectTaggingForAllSentences/totalWordsInAllSentences;
 
         // avg row
-        outputLines.add(createOutputLinePerWordAccuracy("macro-avg", avgWordAccuracy, avgFullSentenceAccuracy));
+        outputLines.add(createOutputLinePerSentence("macro-avg", wordAccuracyAll, sentenceAccuracyAll));
         return outputLines;
     }
 
-    private List<String> createOutputLinesPerSentenceAccuracy(SentenceAccuracy sentenceAccuracy){
-        List<String> outputLines = new ArrayList<>();
-        String sentenceNumAsString = "" + sentenceAccuracy.getSentenceNum();
-        double fullSentenceAccuracy = sentenceAccuracy.getSentenceAccuracy();
-        for (Double wordAccuracy: sentenceAccuracy.getWordAccuracies()){
-            outputLines.add(createOutputLinePerWordAccuracy(sentenceNumAsString, wordAccuracy, fullSentenceAccuracy));
-        }
-
-        return outputLines;
-    }
-
-    private String createOutputLinePerWordAccuracy(String sentenceNum, double wordAccuracy, double sentenceAccuracy){
+    private String createOutputLinePerSentence(String sentenceNum, double wordAccuracy, int sentenceAccuracy){
         return sentenceNum + "\t" + wordAccuracy + "\t" + sentenceAccuracy;
     }
 }

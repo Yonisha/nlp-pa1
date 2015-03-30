@@ -7,25 +7,22 @@ import java.util.List;
 public class PosTaggerTrainer {
 
     private int maxNgramLength;
-    private List<SegmentWithTagCounts> segmentsWithoutUnknown = new ArrayList<SegmentWithTagCounts>();
+    private List<SegmentWithTagCounts> segmentsWithoutUnknown = new ArrayList<>();
 
     public PosTaggerTrainer(int maxNgramLength){
         this.maxNgramLength = maxNgramLength;
     }
 
-    public TrainerResult train() throws IOException {
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("C:/NLP/heb-pos.train"));
-
+    public TrainerResult train(String trainFile, String lexFile, String gramFile) throws IOException {
         List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
+        List<String> inputLines = FileHelper.readLinesFromFile(trainFile);
 
-        String line = bufferedReader.readLine();
-        while (line != null) {
+        for (String line: inputLines) {
             String[] split = line.split("\t");
 
             // TODO fix condition for empty line
             if (split.length != 2) {
-                line = bufferedReader.readLine();
                 sentences.add(new Sentence(currentSentenceSegments, maxNgramLength));
                 currentSentenceSegments = new ArrayList<>();
                 continue;
@@ -37,20 +34,18 @@ public class PosTaggerTrainer {
 
             SegmentWithTagCounts segment = getSegment(segmentName);
             segment.increment(tag);
-
-            line = bufferedReader.readLine();
         }
 
         // write Lex file
         List<SegmentWithTagCounts> lexSegmentsWithCount = createLexSegments();
         List<SegmentWithTagProbs> lexSegments = createSegmentsWithTagProbs(lexSegmentsWithCount);
         List<String> lexOutputLines = createLexLines(lexSegments);
-        FileHelper.writeLinesToFile(lexOutputLines, "c:/NLP/heb-pos.lex");
+        FileHelper.writeLinesToFile(lexOutputLines, lexFile);
 
         // write grams file
         List<NgramsByLength> ngramsByLength = createNgramsByLength(sentences, maxNgramLength);
         List<String> gramOutputLines = createGramFile(ngramsByLength);
-        FileHelper.writeLinesToFile(gramOutputLines, "c:/NLP/heb-pos.gram");
+        FileHelper.writeLinesToFile(gramOutputLines, gramFile);
 
         return new TrainerResult(ngramsByLength, lexSegments);
     }
