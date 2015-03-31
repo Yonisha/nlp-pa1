@@ -19,15 +19,13 @@ public class PosTaggerTrainer {
         List<String> inputLines = FileHelper.readLinesFromFile(trainFile);
 
         for (String line: inputLines) {
-            String[] split = line.split("\t");
-
-            // TODO fix condition for empty line
-            if (split.length != 2) {
+            if (line.equals("")) {
                 sentences.add(new Sentence(currentSentenceSegments, maxNgramLength));
                 currentSentenceSegments = new ArrayList<>();
                 continue;
             }
 
+            String[] split = line.split("\t");
             String segmentName = split[0];
             String tag = split[1];
             currentSentenceSegments.add(tag);
