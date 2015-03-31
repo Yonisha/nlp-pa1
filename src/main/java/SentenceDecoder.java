@@ -4,18 +4,17 @@ public class SentenceDecoder implements ISentenceDecoder{
 
     private List<NgramsByLength> stateTransitionProbabilities;
     private List<SegmentWithTagProbs> symbolEmissionProbabilities;
-
+    private List<String> tags;
 
     public SentenceDecoder(TrainerResult trainerResult){
         this.stateTransitionProbabilities = trainerResult.getStateTransitionProbabilities();
         this.symbolEmissionProbabilities = trainerResult.getSymbolEmissionProbabilities();
+        tags = createTags();
     }
 
     public List<String> decode(InputSentence sentence){
 
         List<String> segments = sentence.getSegments();
-        // move to main decoder and do once
-        List<String> tags = createTags();
 
         // initialize
         ProbWithPreviousTag[][] matrix = new ProbWithPreviousTag[segments.size()][tags.size()];
@@ -57,14 +56,6 @@ public class SentenceDecoder implements ISentenceDecoder{
                 max = current;
             }
         }
-
-//        for (int i = 0; i <segments.size(); i++) {
-//            for (int j = 0; j < tags.size(); j++) {
-//                String prev = matrix[i][j].getPrevious() != null ? matrix[i][j].getPrevious().getTag() : "null";
-//                System.out.print("Tag: " + matrix[i][j].getTag() + ", Prob: " + matrix[i][j].getProb() + ", Prev: " + prev + " /// ");
-//            }
-//            System.out.println();
-//        }
 
         List<String> taggingResult = new ArrayList<>();
         ProbWithPreviousTag currentTag = max;
@@ -115,10 +106,14 @@ public class SentenceDecoder implements ISentenceDecoder{
         NgramsByLength unigrams = this.stateTransitionProbabilities.get(0);
         for (NgramWithProb ngramWithProb: unigrams.getNgramsWithProb()){
             String currentTag = ngramWithProb.getNgramTags()[0];
-            if (!uniqueTags.contains(currentTag) && currentTag != "[s]" && currentTag != "[e]"){
+
+            if (!uniqueTags.contains(currentTag)){
                 uniqueTags.add(currentTag);
             }
         }
+
+        uniqueTags.remove("[s]");
+        uniqueTags.remove("[e]");
 
         return uniqueTags;
     }

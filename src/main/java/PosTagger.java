@@ -20,15 +20,26 @@ public class PosTagger {
         PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
         naiveDecoder.decode(testFile, taggedTestFile);
 
+        long startTime = System.currentTimeMillis();
+
         // HMM Viterbi tagging
         PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
         TrainerResult trainerResult = trainer.train(trainFile, lexFile, gramFile);
         SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
 
+        long trainEndTime = System.currentTimeMillis();
+        System.out.println("Finished training after " + (trainEndTime - startTime) / 1000d  + " seconds");
+
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
         decoder.decode(testFile, taggedTestFile);
 
+        long decodeEndTime = System.currentTimeMillis();
+        System.out.println("Finished decoding after " + (decodeEndTime - startTime) / 1000d  + " seconds");
+
         PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
         evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
+
+        long evaluateEndTime = System.currentTimeMillis();
+        System.out.println("Finished evaluation after " + (evaluateEndTime - startTime) / 1000d  + " seconds");
     }
 }
