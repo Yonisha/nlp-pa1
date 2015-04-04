@@ -32,6 +32,9 @@ public class PosTaggerEvaluator{
                 sentenceNum++;
                 SentenceStatistics evaluationForSentence = this.sentenceEvaluator.evaluate(sentenceNum, decoderTaggingForCurrentSentence, goldTaggingForCurrentSentence);
                 sentenceAccuracies.add(evaluationForSentence);
+
+                decoderTaggingForCurrentSentence = new ArrayList<>();
+                goldTaggingForCurrentSentence = new ArrayList<>();
             }else{
                 decoderTaggingForCurrentSentence.add(createWordWithTagFromLine(taggedFileInputLines.get(i)));
                 goldTaggingForCurrentSentence.add(createWordWithTagFromLine(goldFileInputLines.get(i)));
@@ -47,7 +50,7 @@ public class PosTaggerEvaluator{
         return new WordWithTag(partsOfLine[0], partsOfLine[1]);
     }
 
-    private List<String> createOutputLines(String testFileName, String goldFileName, List<SentenceStatistics> sentenceStatisticses){
+    private List<String> createOutputLines(String testFileName, String goldFileName, List<SentenceStatistics> sentencesStatistics){
 
         List<String> outputLines = new ArrayList<>();
         outputLines.add("# Part-of-Speech Tagging Evaluation");
@@ -59,26 +62,27 @@ public class PosTaggerEvaluator{
         outputLines.add("");
         outputLines.add("# sent-num:\tword-accuracy\tsent-accuracy");
 
-        sentenceStatisticses.forEach(ss -> outputLines.add(createOutputLinePerSentence("" + ss.getSentenceNum(), ss.getWordAccuracy(), ss.getSentenceAccuracy())));
+        sentencesStatistics.forEach(ss -> outputLines.add(createOutputLinePerSentence("" + ss.getSentenceNum(), ss.getWordAccuracy(), ss.getSentenceAccuracy())));
         outputLines.add("#----------------------------------------------------------------------------------------------");
 
         double wordsWithCorrectTaggingForAllSentences = 0;
         double totalWordsInAllSentences = 0;
-        int sentenceAccuracyAll = 0;
-        for (SentenceStatistics sentenceStatistics: sentenceStatisticses){
+        int totalCorrectSentences = 0;
+        for (SentenceStatistics sentenceStatistics: sentencesStatistics){
             wordsWithCorrectTaggingForAllSentences += sentenceStatistics.getNumberOfCorrectTaggedSegments();
             totalWordsInAllSentences += sentenceStatistics.getNumberOfSegmentsInSentence();
-            sentenceAccuracyAll += sentenceStatistics.getSentenceAccuracy();
+            totalCorrectSentences += sentenceStatistics.getSentenceAccuracy();
         }
 
         double wordAccuracyAll = wordsWithCorrectTaggingForAllSentences/totalWordsInAllSentences;
+        double sentenceAccuracyAll = totalCorrectSentences / (double)sentencesStatistics.size();
 
         // avg row
         outputLines.add(createOutputLinePerSentence("macro-avg", wordAccuracyAll, sentenceAccuracyAll));
         return outputLines;
     }
 
-    private String createOutputLinePerSentence(String sentenceNum, double wordAccuracy, int sentenceAccuracy){
+    private String createOutputLinePerSentence(String sentenceNum, double wordAccuracy, double sentenceAccuracy){
         return sentenceNum + "\t" + wordAccuracy + "\t" + sentenceAccuracy;
     }
 }
