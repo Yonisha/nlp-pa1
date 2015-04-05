@@ -45,4 +45,13 @@ public class NGram {
 
         return result;
     }
+
+    @Override
+    public String toString(){
+        String text = "";
+        for (String part: parts){
+            text += part + " ";
+        }
+        return text.trim();
+    }
 }

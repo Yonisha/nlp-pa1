@@ -1,3 +1,5 @@
+import common.Sentence;
+
 import java.util.*;
 
 public class SentenceDecoder implements ISentenceDecoder{
@@ -12,7 +14,7 @@ public class SentenceDecoder implements ISentenceDecoder{
         tags = createTags();
     }
 
-    public List<String> decode(InputSentence sentence){
+    public List<String> decode(Sentence sentence) {
 
         List<String> segments = sentence.getSegments();
 

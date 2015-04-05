@@ -1,3 +1,5 @@
+import common.Sentence;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +10,7 @@ public class NaiveSentenceDecoder implements ISentenceDecoder{
 
     }
 
-    public List<String> decode(InputSentence sentence){
+    public List<String> decode(Sentence sentence){
         return new ArrayList<>();
     }
 }

@@ -1,3 +1,6 @@
+import common.Sentence;
+import common.NGram;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,11 +19,11 @@ public class NGramsCreator{
     }
 
     private NgramsByLength createNgramsByLength(int length, List<Sentence> sentences){
-        List<Ngram> bigrams = new ArrayList<Ngram>();
-        List<Ngram> unigrams = new ArrayList<Ngram>();
+        List<NGram> bigrams = new ArrayList<NGram>();
+        List<NGram> unigrams = new ArrayList<NGram>();
         for (Sentence sentence: sentences){
-            List<Ngram> bigramsPerSentence = createPerSentence(2, sentence);
-            List<Ngram> unigramsPerSentence = createPerSentence(1, sentence);
+            List<NGram> bigramsPerSentence = createPerSentence(2, sentence);
+            List<NGram> unigramsPerSentence = createPerSentence(1, sentence);
             bigrams.addAll(bigramsPerSentence);
             unigrams.addAll(unigramsPerSentence);
         }
@@ -35,7 +38,7 @@ public class NGramsCreator{
         return new NgramsByLength(length, ngramWithProbs2);
     }
 
-    private  HashMap<String, Double> createUnigramsFromNgrams(List<Ngram> ngrams){
+    private  HashMap<String, Double> createUnigramsFromNgrams(List<NGram> ngrams){
         HashMap<String, Integer> uniqueNgramsWithCount = createUniqueNgramsWithCount(ngrams);
         int amountOfUnigrams = ngrams.size();
         HashMap<String, Double> uniqueNgramsWithProb = new HashMap<>();
@@ -46,7 +49,7 @@ public class NGramsCreator{
         return uniqueNgramsWithProb;
     }
 
-    private HashMap<String, Double> createBigramsFromNgrams(List<Ngram> ngrams, HashMap<String, Integer> unigrams){
+    private HashMap<String, Double> createBigramsFromNgrams(List<NGram> ngrams, HashMap<String, Integer> unigrams){
         HashMap<String, Integer> uniqueNgramsWithCount = createUniqueNgramsWithCount(ngrams);
 
         HashMap<String, Double> uniqueNgramsWithProb = new HashMap<>();
@@ -59,9 +62,9 @@ public class NGramsCreator{
         return uniqueNgramsWithProb;
     }
 
-    private HashMap<String, Integer> createUniqueNgramsWithCount(List<Ngram> ngrams){
+    private HashMap<String, Integer> createUniqueNgramsWithCount(List<NGram> ngrams){
         HashMap<String, Integer> uniqueNgramsWithCount = new HashMap<>();
-        for(Ngram ngram: ngrams){
+        for(NGram ngram: ngrams){
             if (uniqueNgramsWithCount.containsKey(ngram.toString())){
                 int count = uniqueNgramsWithCount.get(ngram.toString()) + 1;
                 uniqueNgramsWithCount.put(ngram.toString(), count);
@@ -79,17 +82,17 @@ public class NGramsCreator{
 //        return new NgramsByLength(length, ngramsWithProb);
 //    }
 
-    private List<Ngram> createPerSentence(int length, Sentence sentence){
+    private List<NGram> createPerSentence(int length, Sentence sentence){
         List<String> segments = sentence.getSegments();
 
-        List<Ngram> ngrams = new ArrayList<Ngram>();
+        List<NGram> ngrams = new ArrayList<NGram>();
 
         for (int i = 0; i <segments.size() - length + 1; i++) {
             List<String> currentNgramTags = new ArrayList<String>();
             for (int j = i; j <i+length; j++) {
                 currentNgramTags.add(segments.get(j));
             }
-            ngrams.add(new Ngram(currentNgramTags));
+            ngrams.add(new NGram(currentNgramTags));
         }
 
         return ngrams;

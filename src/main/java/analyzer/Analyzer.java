@@ -1,11 +1,13 @@
+package analyzer;
+
+import common.FileHelper;
 import common.NGram;
-import common.TrainerSentence;
+import common.Sentence;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by yonisha on 4/4/2015.
@@ -17,27 +19,27 @@ public class Analyzer {
 
         System.out.println("Train file analysis:");
         List<String> trainLines = FileHelper.readLinesFromFile(trainFile);
-        List<TrainerSentence> trainSentences = getSentences(trainLines);
-        analyzeData(trainSentences);
+        analyzeData(trainLines);
 
 
         System.out.println("Gold file analysis:");
         List<String> goldLines = FileHelper.readLinesFromFile(goldFile);
-        List<TrainerSentence> goldSentences = getSentences(goldLines);
-        analyzeData(goldSentences);
+        analyzeData(goldLines);
     }
 
-    private static void analyzeData(List<TrainerSentence> sentences) {
+    private static void analyzeData(List<String> lines) {
 
         // Segment unigrams
-        List<String> segmentUnigrams = sentences.stream().map(s -> s.getSegments(0)).flatMap(m -> m.stream()).collect(Collectors.toList());
+        List<Sentence> sentences = getSentences(lines, 0);
+        List<String> segmentUnigrams = sentences.stream().map(s -> s.getSegments()).flatMap(m -> m.stream()).collect(Collectors.toList());
         int segmentUnigramTokens = segmentUnigrams.size();
         int segmentUnigramTypes = segmentUnigrams.stream().distinct().collect(Collectors.toList()).size();
         System.out.println("# of segment-unigram tokens: " + segmentUnigramTokens);
         System.out.println("# of segment-unigram types: " + segmentUnigramTypes);
 
         // Tags unigrams
-        List<String> tagUnigrams = sentences.stream().map(s -> s.getTags(0)).flatMap(m -> m.stream()).collect(Collectors.toList());
+        sentences = getSentences(lines, 0);
+        List<String> tagUnigrams = sentences.stream().map(s -> s.getTags()).flatMap(m -> m.stream()).collect(Collectors.toList());
         int tagUnigramTokens = tagUnigrams.size();
         int tagUnigramTypes = tagUnigrams.stream().distinct().collect(Collectors.toList()).size();
         System.out.println("# of tag-unigram tokens: " + tagUnigramTokens);
@@ -45,7 +47,8 @@ public class Analyzer {
 
         // TODO: check if correct!!!
         // Tags bigrams
-        List<NGram> bigrams = sentences.stream().map(s -> s.getTagsNGrams(1)).flatMap(m -> m.stream()).collect(Collectors.toList());
+        sentences = getSentences(lines, 1);
+        List<NGram> bigrams = sentences.stream().map(s -> s.getTagsNGrams()).flatMap(m -> m.stream()).collect(Collectors.toList());
         int tagBigramTokens = bigrams.size();
         int tagBigramTypes = bigrams.stream().distinct().collect(Collectors.toList()).size();
 
@@ -53,14 +56,14 @@ public class Analyzer {
         System.out.println("# of tag-bigram types: " + tagBigramTypes);
     }
 
-    private static List<TrainerSentence> getSentences(List<String> lines) {
-        List<TrainerSentence> sentences = new ArrayList<>();
+    private static List<Sentence> getSentences(List<String> lines, int order) {
+        List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
         List<String> currentSentenceTags = new ArrayList<>();
 
         for (String line: lines) {
             if (line.equals("")) {
-                sentences.add(new TrainerSentence(currentSentenceSegments, currentSentenceTags));
+                sentences.add(new Sentence(currentSentenceSegments, currentSentenceTags, order));
 
                 currentSentenceSegments = new ArrayList<>();
                 currentSentenceTags = new ArrayList<>();

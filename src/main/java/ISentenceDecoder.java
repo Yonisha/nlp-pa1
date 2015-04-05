@@ -1,5 +1,7 @@
+import common.Sentence;
+
 import java.util.List;
 
 public interface ISentenceDecoder{
-    List<String> decode(InputSentence sentence);
+    List<String> decode(Sentence sentence);
 }

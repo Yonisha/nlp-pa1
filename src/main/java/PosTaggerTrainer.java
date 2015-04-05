@@ -1,3 +1,6 @@
+import common.Sentence;
+import common.FileHelper;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Dictionary;

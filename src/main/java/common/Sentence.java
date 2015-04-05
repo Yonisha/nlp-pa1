@@ -1,33 +1,46 @@
 package common;
 
+import common.NGram;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by yonisha on 4/4/2015.
  */
-public class TrainerSentence {
+public class Sentence {
 
+    private int order;
     private List<String> segments;
     private List<String> tags;
 
-    public TrainerSentence(List<String> segments, List<String> tags){
-        this.segments = segments;
-        this.tags = tags;
+    public Sentence(List<String> segments) {
+        this(segments, 0);
     }
 
-    public List<String> getTags(int order) {
-        return pad(this.tags, order);
+    public Sentence(List<String> segments, int order) {
+        this.order = order;
+        this.segments = pad(segments, order);
     }
 
-    public List<String> getSegments(int order){
-        return pad(this.segments, order);
+    public Sentence(List<String> segments, List<String> tags, int order){
+        this.order = order;
+        this.segments = pad(segments, order);
+        this.tags = pad(tags, order);
     }
 
-    public List<NGram> getTagsNGrams(int order) {
+    public List<String> getTags() {
+        return this.tags;
+    }
+
+    public List<String> getSegments(){
+        return this.segments;
+    }
+
+    public List<NGram> getTagsNGrams() {
         List<NGram> nGrams = new ArrayList<>();
 
-        List<String> ngramTags = getTags(order);
+        List<String> ngramTags = getTags();
         List<String> currentNGramItems = new ArrayList<>();
 
         for (int i = 0; i < ngramTags.size() - order; i++) {
