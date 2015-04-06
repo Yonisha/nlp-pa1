@@ -1,3 +1,11 @@
+package temp;
+
+import decode.NaiveSentenceDecoder;
+import train.NaiveTrainResult;
+import train.NaiveTrainer;
+import train.PosTaggerTrainer;
+import train.TrainerResult;
+
 import java.io.IOException;
 
 public class PosTagger {
@@ -16,9 +24,14 @@ public class PosTagger {
         String goldFile = "C:/NLP/heb-pos.gold";
 
         // Naive tagging
-        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder();
+        NaiveTrainer naiveTrainer = new NaiveTrainer();
+        NaiveTrainResult naiveTrainResult = naiveTrainer.train(trainFile);
+        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
         PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
         naiveDecoder.decode(testFile, taggedTestFile);
+
+        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
+        naiveEvaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
 
         long startTime = System.currentTimeMillis();
 

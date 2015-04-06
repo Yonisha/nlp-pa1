@@ -1,3 +1,5 @@
+package temp;
+
 public class WordWithTag {
     private String word;
     private String tag;

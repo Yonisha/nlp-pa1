@@ -1,3 +1,5 @@
+package temp;
+
 public class ProbWithPreviousTag{
     private String tag;
     private ProbWithPreviousTag previous;

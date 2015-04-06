@@ -1,3 +1,5 @@
+package temp;
+
 import java.util.List;
 
 public class NgramsByLength{
@@ -21,7 +23,7 @@ public class NgramsByLength{
 //    @Override
 //    public String toString(){
 //        String text =
-//        for (NgramWithProb ngram: ngrams) {
+//        for (temp.NgramWithProb ngram: ngrams) {
 //            text += ngram.toString() + "\r\n";
 //
 //        }

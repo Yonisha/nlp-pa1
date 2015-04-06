@@ -1,3 +1,8 @@
+package train;
+
+import temp.NgramsByLength;
+import temp.SegmentWithTagProbs;
+
 import java.util.List;
 
 public class TrainerResult{

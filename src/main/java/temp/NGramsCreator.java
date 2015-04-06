@@ -1,3 +1,5 @@
+package temp;
+
 import common.Sentence;
 import common.NGram;
 
@@ -76,10 +78,10 @@ public class NGramsCreator{
         return uniqueNgramsWithCount;
     }
 
-//    private NgramsByLength createNgramsByLengthFromNgrams(int length, List<Ngram> ngrams){
-//        List<NgramWithProb> ngramsWithProb = new ArrayList<>();
+//    private temp.NgramsByLength createNgramsByLengthFromNgrams(int length, List<Ngram> ngrams){
+//        List<temp.NgramWithProb> ngramsWithProb = new ArrayList<>();
 //
-//        return new NgramsByLength(length, ngramsWithProb);
+//        return new temp.NgramsByLength(length, ngramsWithProb);
 //    }
 
     private List<NGram> createPerSentence(int length, Sentence sentence){

@@ -1,4 +1,7 @@
+package temp;
+
 import common.Sentence;
+import train.TrainerResult;
 
 import java.util.*;
 
