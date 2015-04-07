@@ -1,4 +1,4 @@
-package analyzer;
+package analyze;
 
 import common.FileHelper;
 import common.NGram;

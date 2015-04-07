@@ -1,7 +1,5 @@
 package common;
 
-import common.NGram;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,12 +8,15 @@ import java.util.List;
  */
 public class Sentence {
 
+    private int id;
     private int order;
     private List<String> segments;
     private List<String> tags;
 
-    public Sentence(List<String> segments) {
+    public Sentence(int id, List<String> segments) {
         this(segments, 0);
+
+        this.id = id;
     }
 
     public Sentence(List<String> segments, int order) {
@@ -27,6 +28,10 @@ public class Sentence {
         this.order = order;
         this.segments = pad(segments, order);
         this.tags = pad(tags, order);
+    }
+
+    public int getId() {
+        return this.id;
     }
 
     public List<String> getTags() {
