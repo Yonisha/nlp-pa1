@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Created by yonisha on 4/4/2015.
- */
 public class Analyzer {
     public static void main(String[] args) throws IOException {
         String trainFile = "C:/NLP/heb-pos.train";

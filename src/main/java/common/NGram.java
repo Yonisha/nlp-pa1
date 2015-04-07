@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by yonisha on 4/5/2015.
- */
 public class NGram {
     List<String> parts = new ArrayList<>();
 

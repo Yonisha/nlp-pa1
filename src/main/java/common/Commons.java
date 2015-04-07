@@ -3,9 +3,6 @@ package common;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- * Created by yonisha on 4/5/2015.
- */
 public class Commons {
     public static String join(Collection<?> s, String delimiter) {
         StringBuilder builder = new StringBuilder();

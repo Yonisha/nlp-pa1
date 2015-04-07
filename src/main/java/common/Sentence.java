@@ -3,9 +3,6 @@ package common;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by yonisha on 4/4/2015.
- */
 public class Sentence {
 
     private int id;
