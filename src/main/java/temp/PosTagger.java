@@ -37,12 +37,13 @@ public class PosTagger {
 
         // HMM Viterbi tagging
         PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength, smoothingEnabled);
-        TrainerResult trainerResult = trainer.train(trainFile, lexFile, gramFile);
-        SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
+        trainer.train(trainFile, lexFile, gramFile);
 
         long trainEndTime = System.currentTimeMillis();
         System.out.println("Finished training after " + (trainEndTime - startTime) / 1000d  + " seconds");
 
+        TrainerResult trainerResult = TrainerResult.buildTrainResult(lexFile, gramFile);
+        SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
         decoder.decode(testFile, taggedTestFile);
 
