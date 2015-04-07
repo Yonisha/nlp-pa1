@@ -13,7 +13,7 @@ public class PosTagger {
     public static void main(String[] args) throws IOException {
 
         int maxNgramLength = 2;
-        boolean useSmoothing = true; // need to implement
+        boolean smoothingEnabled = true;
 
         String trainFile = "C:/NLP/heb-pos.train";
         String lexFile = "C:/NLP/heb-pos.lex";
@@ -30,13 +30,13 @@ public class PosTagger {
         PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
         naiveDecoder.decode(testFile, taggedTestFile);
 
-        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
+        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(maxNgramLength, smoothingEnabled);
         naiveEvaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
 
         long startTime = System.currentTimeMillis();
 
         // HMM Viterbi tagging
-        PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength);
+        PosTaggerTrainer trainer = new PosTaggerTrainer(maxNgramLength, smoothingEnabled);
         TrainerResult trainerResult = trainer.train(trainFile, lexFile, gramFile);
         SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
 
@@ -49,7 +49,7 @@ public class PosTagger {
         long decodeEndTime = System.currentTimeMillis();
         System.out.println("Finished decoding after " + (decodeEndTime - startTime) / 1000d  + " seconds");
 
-        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, useSmoothing);
+        PosTaggerEvaluator evaluator = new PosTaggerEvaluator(maxNgramLength, smoothingEnabled);
         evaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
 
         long evaluateEndTime = System.currentTimeMillis();

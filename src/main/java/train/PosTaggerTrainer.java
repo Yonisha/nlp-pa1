@@ -12,10 +12,12 @@ import java.util.List;
 
 public class PosTaggerTrainer {
 
+    private boolean enableSmoothing;
     private int maxNgramLength;
     private List<SegmentWithTagCounts> segmentsWithoutUnknown = new ArrayList<>();
 
-    public PosTaggerTrainer(int maxNgramLength){
+    public PosTaggerTrainer(int maxNgramLength, boolean enableSmoothing){
+        this.enableSmoothing = enableSmoothing;
         this.maxNgramLength = maxNgramLength;
     }
 
@@ -41,7 +43,7 @@ public class PosTaggerTrainer {
         }
 
         // write Lex file
-        List<SegmentWithTagCounts> lexSegmentsWithCount = createLexSegments();
+        List<SegmentWithTagCounts> lexSegmentsWithCount = enableSmoothing ? applySmoothing() : segmentsWithoutUnknown;
         List<SegmentWithTagProbs> lexSegments = createSegmentsWithTagProbs(lexSegmentsWithCount);
         List<String> lexOutputLines = createLexLines(lexSegments);
         FileHelper.writeLinesToFile(lexOutputLines, lexFile);
@@ -105,7 +107,7 @@ public class PosTaggerTrainer {
         return linesToReturn;
     }
 
-    private List<SegmentWithTagCounts> createLexSegments() throws IOException {
+    private List<SegmentWithTagCounts> applySmoothing() throws IOException {
 
         SegmentWithTagCounts unknownSegment = new SegmentWithTagCounts("UNK");
 
@@ -120,6 +122,7 @@ public class PosTaggerTrainer {
         }
 
         segmentsAfterConsideringUnknown.add(unknownSegment);
+
         return segmentsAfterConsideringUnknown;
     }
 
