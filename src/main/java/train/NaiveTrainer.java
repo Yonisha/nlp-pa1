@@ -12,7 +12,7 @@ public class NaiveTrainer {
     private List<SegmentWithTagCounts> segmentsWithTagsCount = new ArrayList<>();
 
     public NaiveTrainResult train(String trainFile) throws IOException {
-        countSegmentsTags(trainFile);
+        segmentsWithTagsCount = FileHelper.getSegmentsWithTagCounts(trainFile);
 
         return buildTrainResult();
     }
@@ -38,34 +38,5 @@ public class NaiveTrainer {
         });
 
         return naiveTrainResult;
-    }
-
-    private void countSegmentsTags(String trainFile) throws IOException {
-        List<String> inputLines = FileHelper.readLinesFromFile(trainFile);
-        for (String line: inputLines) {
-            if (line.equals("")) {
-                continue;
-            }
-
-            String[] split = line.split("\t");
-            String segmentName = split[0];
-            String tag = split[1];
-
-            SegmentWithTagCounts segment = getSegment(segmentName);
-            segment.increment(tag);
-        }
-    }
-
-    private SegmentWithTagCounts getSegment(String segmentName) {
-        for (SegmentWithTagCounts segmentItem : segmentsWithTagsCount) {
-            if (segmentItem.getText().equalsIgnoreCase(segmentName)) {
-                return segmentItem;
-            }
-        }
-
-        SegmentWithTagCounts segment = new SegmentWithTagCounts(segmentName);
-        segmentsWithTagsCount.add(segment);
-
-        return segment;
     }
 }

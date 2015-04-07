@@ -3,6 +3,7 @@ package analyze;
 import common.FileHelper;
 import common.NGram;
 import common.Sentence;
+import temp.SegmentWithTagCounts;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,30 +16,31 @@ public class Analyzer {
         String goldFile = "C:/NLP/heb-pos.gold";
 
         System.out.println("Train file analysis:");
-        List<String> trainLines = FileHelper.readLinesFromFile(trainFile);
-        analyzeData(trainLines);
-
+        analyzeData(trainFile);
 
         System.out.println("Gold file analysis:");
-        List<String> goldLines = FileHelper.readLinesFromFile(goldFile);
-        analyzeData(goldLines);
+        analyzeData(goldFile);
     }
 
-    private static void analyzeData(List<String> lines) {
+    private static void analyzeData(String fileName) throws IOException {
+        List<String> lines = FileHelper.readLinesFromFile(fileName);
 
         // Segment unigrams
         List<Sentence> sentences = getSentences(lines, 0);
         List<String> segmentUnigrams = sentences.stream().map(s -> s.getSegments()).flatMap(m -> m.stream()).collect(Collectors.toList());
         int segmentUnigramTokens = segmentUnigrams.size();
-        int segmentUnigramTypes = segmentUnigrams.stream().distinct().collect(Collectors.toList()).size();
+        List<String> segmentUnigramTypes = segmentUnigrams.stream().distinct().collect(Collectors.toList());
+        int segmentUnigramTypesCount = segmentUnigramTypes.size();
+
         System.out.println("# of segment-unigram tokens: " + segmentUnigramTokens);
-        System.out.println("# of segment-unigram types: " + segmentUnigramTypes);
+        System.out.println("# of segment-unigram types: " + segmentUnigramTypesCount);
 
         // Tags unigrams
         sentences = getSentences(lines, 0);
         List<String> tagUnigrams = sentences.stream().map(s -> s.getTags()).flatMap(m -> m.stream()).collect(Collectors.toList());
         int tagUnigramTokens = tagUnigrams.size();
         int tagUnigramTypes = tagUnigrams.stream().distinct().collect(Collectors.toList()).size();
+
         System.out.println("# of tag-unigram tokens: " + tagUnigramTokens);
         System.out.println("# of tag-unigram types: " + tagUnigramTypes);
 
@@ -51,6 +53,14 @@ public class Analyzer {
 
         System.out.println("# of tag-bigram tokens: " + tagBigramTokens);
         System.out.println("# of tag-bigram types: " + tagBigramTypes);
+
+        // Calculating lexical ambiguity
+        List<SegmentWithTagCounts> segmentsWithTagCounts = FileHelper.getSegmentsWithTagCounts(fileName);
+        int totalDistinctPosTagsForAllSegmentTypes = segmentsWithTagCounts.stream().mapToInt(s -> s.getTagsCounts().size()).sum();
+        double lexicalAmbiguity = totalDistinctPosTagsForAllSegmentTypes / (double)segmentsWithTagCounts.size();
+
+        System.out.println("Lexical ambiguity: " + lexicalAmbiguity);
+        System.out.println();
     }
 
     private static List<Sentence> getSentences(List<String> lines, int order) {
