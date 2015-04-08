@@ -1,8 +1,11 @@
 package temp;
 
+import decode.NaiveSentenceDecoder;
 import decode.PosTaggerDecoder;
 import decode.SentenceDecoder;
 import evaluate.PosTaggerEvaluator;
+import train.NaiveTrainer;
+import train.NaiveTrainerResult;
 import train.PosTaggerTrainer;
 import train.TrainerResult;
 import java.io.IOException;
@@ -28,17 +31,6 @@ public class PosTagger {
             System.out.println("Unknown operation provided. Must use Train, Decode or Evaluate.");
             System.exit(1);
         }
-
-        // TODO: what to do with the naive trainer!?!
-//        // Naive tagging
-//        NaiveTrainer naiveTrainer = new NaiveTrainer();
-//        NaiveTrainResult naiveTrainResult = naiveTrainer.train(trainFile);
-//        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
-//        PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
-//        naiveDecoder.decode(testFile, taggedTestFile);
-//
-//        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(maxNgramLength, smoothingEnabled);
-//        naiveEvaluator.evaluate(testFile, taggedTestFile, goldFile, evaluationFile);
     }
 
     private static void train(String[] args) throws IOException {
@@ -51,7 +43,15 @@ public class PosTagger {
 
         int model = Integer.parseInt(args[1]);
         String trainFile = args[2];
+
+        // TODO: if model < 2 then do not extract
         boolean smoothingEnabled = args[3].equalsIgnoreCase("y");
+
+        if (model < 2) {
+            invokeNaiveTrainer(trainFile);
+
+            return;
+        }
 
         // TODO: derive from train filename.
         String lexFile = "C:/NLP/heb-pos.lex";
@@ -60,10 +60,24 @@ public class PosTagger {
         PosTaggerTrainer trainer = new PosTaggerTrainer(model, smoothingEnabled);
 
         long startTime = System.currentTimeMillis();
-        TrainerResult trainerResult = trainer.train(trainFile, lexFile, gramFile);
+        trainer.train(trainFile, lexFile, gramFile);
         long trainEndTime = System.currentTimeMillis();
 
         System.out.println("Finished training after " + (trainEndTime - startTime) / 1000d  + " seconds");
+    }
+
+    private static void invokeNaiveTrainer(String trainFile) throws IOException {
+        NaiveTrainer naiveTrainer = new NaiveTrainer();
+        naiveTrainer.train(trainFile);
+
+        // TODO: move from here.
+        NaiveTrainerResult naiveTrainResult = NaiveTrainerResult.buildTrainResult("c:/nlp/heb-pos.lex");
+        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
+        PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
+        naiveDecoder.decode("c:/nlp/heb-pos.test", "c:/nlp/heb-pos.tagged");
+
+        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(1, true);
+        naiveEvaluator.evaluate("c:/nlp/heb-pos.test", "c:/nlp/heb-pos.tagged", "c:/nlp/heb-pos.gold", "c:/nlp/heb-pos.eval");
     }
 
     // TODO: what to do with the optional param file???????

@@ -56,6 +56,8 @@ public class Analyzer {
 
         // Calculating lexical ambiguity
         List<SegmentWithTagCounts> segmentsWithTagCounts = FileHelper.getSegmentsWithTagCounts(fileName);
+
+        // TODO: correct??
         int totalDistinctPosTagsForAllSegmentTypes = segmentsWithTagCounts.stream().mapToInt(s -> s.getTagsCounts().size()).sum();
         double lexicalAmbiguity = totalDistinctPosTagsForAllSegmentTypes / (double)segmentsWithTagCounts.size();
 

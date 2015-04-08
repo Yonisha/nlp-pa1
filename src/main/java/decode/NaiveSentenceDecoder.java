@@ -1,26 +1,31 @@
 package decode;
 
 import common.Sentence;
-import train.NaiveTrainResult;
+import temp.SegmentWithTagProbs;
+import train.NaiveTrainerResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class NaiveSentenceDecoder implements ISentenceDecoder {
 
-    private NaiveTrainResult naiveTrainResult;
+    private List<SegmentWithTagProbs> symbolEmissionProbabilities;
 
-    public NaiveSentenceDecoder(NaiveTrainResult naiveTrainResult){
-        this.naiveTrainResult = naiveTrainResult;
+    public NaiveSentenceDecoder(NaiveTrainerResult naiveTrainResult){
+        this.symbolEmissionProbabilities = naiveTrainResult.getSymbolEmissionProbabilities();
     }
 
     public List<String> decode(Sentence sentence){
         ArrayList<String> sentenceTags = new ArrayList<>();
 
         for (String segment : sentence.getSegments()) {
-            String tagForSegment = naiveTrainResult.getTagForSegment(segment);
+            Optional<SegmentWithTagProbs> first = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals(segment)).findFirst();
 
-            if (tagForSegment == null) {
+            String tagForSegment;
+            if (first.isPresent()) {
+                tagForSegment = first.get().getTagWithMaxProbability();
+            } else {
                 tagForSegment = "NNP";
             }
 

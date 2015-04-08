@@ -2,41 +2,73 @@ package train;
 
 import common.FileHelper;
 import temp.SegmentWithTagCounts;
+import temp.SegmentWithTagProbs;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 
 public class NaiveTrainer {
 
-    private List<SegmentWithTagCounts> segmentsWithTagsCount = new ArrayList<>();
+    public NaiveTrainerResult train(String trainFile) throws IOException {
+        List<SegmentWithTagCounts> segmentsWithTagsCount = FileHelper.getSegmentsWithTagCounts(trainFile);
 
-    public NaiveTrainResult train(String trainFile) throws IOException {
-        segmentsWithTagsCount = FileHelper.getSegmentsWithTagCounts(trainFile);
-
-        return buildTrainResult();
+        return buildTrainResult(segmentsWithTagsCount);
     }
 
-    private NaiveTrainResult buildTrainResult() {
-        NaiveTrainResult naiveTrainResult = new NaiveTrainResult();
+    // TODO: can processed in parallel.
+    private NaiveTrainerResult buildTrainResult(List<SegmentWithTagCounts> segmentsWithTagsCount) throws IOException {
+        List<SegmentWithTagProbs> segmentsWithTagProbs = new ArrayList<>();
 
-        segmentsWithTagsCount.parallelStream().forEach(segment -> {
-            Enumeration<String> keys = segment.getTagsCounts().keys();
+        for (SegmentWithTagCounts segmentWithTagCounts : segmentsWithTagsCount) {
+            int totalSegmentOccurrences = getTotalSegmentOccurrences(segmentWithTagCounts);
+            Dictionary<String, Double> probabilities = new Hashtable<String, Double>();
 
-            int maxTagCount = 0;
-            String mostCommonTag = null;
+            Dictionary<String, Integer> tagsCounts = segmentWithTagCounts.getTagsCounts();
+            Enumeration<String> keys = tagsCounts.keys();
+
             while (keys.hasMoreElements()) {
                 String key = keys.nextElement();
-                int tagCount = segment.getTagsCounts().get(key);
+                Integer count = tagsCounts.get(key);
+                double probability = count / (double)totalSegmentOccurrences;
 
-                if (tagCount > maxTagCount) {
-                    mostCommonTag = key;
-                }
+                probabilities.put(key, probability);
             }
 
-            naiveTrainResult.addTagForSegment(segment.getText(), mostCommonTag);
-        });
+            segmentsWithTagProbs.add(new SegmentWithTagProbs(segmentWithTagCounts.getText(), probabilities));
+        }
 
-        return naiveTrainResult;
+        List<String> outputLines = new ArrayList<>();
+        for (SegmentWithTagProbs segmentWithTagCounts : segmentsWithTagProbs) {
+            outputLines.add(getLexLinePerSegment(segmentWithTagCounts));
+        }
+
+        FileHelper.writeLinesToFile(outputLines, "c:/nlp/heb-pos.lex");
+
+        return new NaiveTrainerResult(segmentsWithTagProbs);
+    }
+
+    private int getTotalSegmentOccurrences(SegmentWithTagCounts segmentWithTagCounts) {
+        int occurrences = 0;
+
+        Enumeration<Integer> elements = segmentWithTagCounts.getTagsCounts().elements();
+        while (elements.hasMoreElements()) {
+            occurrences += elements.nextElement();
+        }
+
+        return occurrences;
+    }
+
+    private String getLexLinePerSegment(SegmentWithTagProbs segment){
+        String outputLine = segment.getName();
+        Dictionary<String, Double> probabilities = segment.getTagsProbs();
+
+        Enumeration<String> keys = probabilities.keys();
+        while (keys.hasMoreElements()) {
+            String currentKey = keys.nextElement();
+            Double prob = probabilities.get(currentKey);
+            outputLine += "\t" + currentKey + " " + prob;
+        }
+
+        return outputLine;
     }
 }
