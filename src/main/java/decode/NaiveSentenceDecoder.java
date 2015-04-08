@@ -1,7 +1,6 @@
 package decode;
 
 import common.Sentence;
-import temp.ISentenceDecoder;
 import train.NaiveTrainResult;
 
 import java.util.ArrayList;

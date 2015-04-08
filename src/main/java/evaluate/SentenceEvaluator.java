@@ -1,4 +1,6 @@
-package temp;
+package evaluate;
+
+import temp.WordWithTag;
 
 import java.util.List;
 

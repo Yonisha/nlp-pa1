@@ -1,4 +1,4 @@
-package temp;
+package evaluate;
 
 public class SentenceStatistics {
     private int sentenceNum;

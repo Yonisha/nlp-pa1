@@ -1,4 +1,4 @@
-package temp;
+package decode;
 
 import common.Sentence;
 

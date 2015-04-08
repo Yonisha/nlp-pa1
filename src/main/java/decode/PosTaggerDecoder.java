@@ -1,8 +1,9 @@
-package temp;
+package decode;
 
 import common.Sentence;
 import common.FileHelper;
 import common.SentenceDecodingResult;
+import decode.ISentenceDecoder;
 
 import java.io.IOException;
 import java.util.ArrayList;

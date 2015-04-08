@@ -1,11 +1,16 @@
-package temp;
+package decode;
 
 import common.Sentence;
+import decode.ISentenceDecoder;
+import temp.NgramWithProb;
+import temp.NgramsByLength;
+import temp.ProbWithPreviousTag;
+import temp.SegmentWithTagProbs;
 import train.TrainerResult;
 
 import java.util.*;
 
-public class SentenceDecoder implements ISentenceDecoder{
+public class SentenceDecoder implements ISentenceDecoder {
 
     private List<NgramsByLength> stateTransitionProbabilities;
     private List<SegmentWithTagProbs> symbolEmissionProbabilities;

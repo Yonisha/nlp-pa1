@@ -1,6 +1,7 @@
-package temp;
+package evaluate;
 
 import common.FileHelper;
+import temp.WordWithTag;
 
 import java.io.*;
 import java.util.ArrayList;
