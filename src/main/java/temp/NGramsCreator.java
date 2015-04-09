@@ -3,9 +3,7 @@ package temp;
 import common.Sentence;
 import common.NGram;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class NGramsCreator{
 
@@ -13,30 +11,34 @@ public class NGramsCreator{
 
         List<NgramsByLength> ngramsByLengths = new ArrayList<NgramsByLength>();
 
-        for (int i = 1; i <maxNgramLength+1; i++) {
+        // TODO: can be improved to avoid recreating previous ngram every time.
+        for (int i = 1; i < maxNgramLength + 1; i++) {
             ngramsByLengths.add(createNgramsByLength(i, sentences));
         }
 
         return ngramsByLengths;
     }
 
-    private NgramsByLength createNgramsByLength(int length, List<Sentence> sentences){
-        List<NGram> bigrams = new ArrayList<NGram>();
-        List<NGram> unigrams = new ArrayList<NGram>();
-        for (Sentence sentence: sentences){
-            List<NGram> bigramsPerSentence = createPerSentence(2, sentence);
-            List<NGram> unigramsPerSentence = createPerSentence(1, sentence);
-            bigrams.addAll(bigramsPerSentence);
-            unigrams.addAll(unigramsPerSentence);
+    private NgramsByLength createNgramsByLength(int length, List<Sentence> sentences) {
+        Map<Integer, List<NGram>> ngramsDictionary = new HashMap<>();
+
+        List<NGram> totalPerLevel = new ArrayList<>();
+        for (int i = 1; i <= length; i++) {
+            for (Sentence sentence: sentences){
+                List<NGram> perSentence = createPerSentence(i, sentence);
+                totalPerLevel.addAll(perSentence);
+            }
+
+            ngramsDictionary.put(i, totalPerLevel);
+            totalPerLevel = new ArrayList<>();
         }
 
-        // Bonus: createNgramsByLengthFromNgrams
-        // unigrams are calculated twice in total
-        HashMap<String, Double> ngramsWithProbs = length == 1 ? createUnigramsFromNgrams(unigrams) : createBigramsFromNgrams(bigrams, createUniqueNgramsWithCount(unigrams));
+        HashMap<String, Double> ngramsWithProbs = createNgramsWithProbability(ngramsDictionary.get(length), ngramsDictionary.get(length - 1));
         List<NgramWithProb> ngramWithProbs2 = new ArrayList<>();
         for (String ngram: ngramsWithProbs.keySet()){
             ngramWithProbs2.add(new NgramWithProb(ngram, ngramsWithProbs.get(ngram)));
         }
+
         return new NgramsByLength(length, ngramWithProbs2);
     }
 
@@ -51,13 +53,19 @@ public class NGramsCreator{
         return uniqueNgramsWithProb;
     }
 
-    private HashMap<String, Double> createBigramsFromNgrams(List<NGram> ngrams, HashMap<String, Integer> unigrams){
+    private HashMap<String, Double> createNgramsWithProbability(List<NGram> ngrams, List<NGram> ngramsWithPrevLevel){
+        if (ngramsWithPrevLevel == null) {
+            return createUnigramsFromNgrams(ngrams);
+        }
+
+        HashMap<String, Integer> ngramsWithPreviousLevelCount = createUniqueNgramsWithCount(ngramsWithPrevLevel);
         HashMap<String, Integer> uniqueNgramsWithCount = createUniqueNgramsWithCount(ngrams);
 
         HashMap<String, Double> uniqueNgramsWithProb = new HashMap<>();
         for(String bigram: uniqueNgramsWithCount.keySet()){
-            String firstTag = bigram.split(" ")[0];
-            int countOfRelevantUnigram = unigrams.get(firstTag);
+            int indexOfLastSpace = bigram.lastIndexOf(" ");
+            String firstTag = bigram.substring(0, indexOfLastSpace);
+            int countOfRelevantUnigram = ngramsWithPreviousLevelCount.get(firstTag);
             uniqueNgramsWithProb.put(bigram, (double)uniqueNgramsWithCount.get(bigram)/countOfRelevantUnigram);
         }
 
@@ -77,12 +85,6 @@ public class NGramsCreator{
 
         return uniqueNgramsWithCount;
     }
-
-//    private temp.NgramsByLength createNgramsByLengthFromNgrams(int length, List<Ngram> ngrams){
-//        List<temp.NgramWithProb> ngramsWithProb = new ArrayList<>();
-//
-//        return new temp.NgramsByLength(length, ngramsWithProb);
-//    }
 
     private List<NGram> createPerSentence(int length, Sentence sentence){
         List<String> segments = sentence.getSegments();
