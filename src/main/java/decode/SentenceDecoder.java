@@ -35,16 +35,18 @@ public class SentenceDecoder implements ISentenceDecoder {
         }
 
         for (int i = 1; i < segments.size(); i++) {
-            for (int j = 0; j <tags.size(); j++) {
+            for (int j = 0; j < tags.size(); j++) {
 
                 double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(i));
 
-                double maxTransitionProbWithProbOfPrevious = -Double.MAX_VALUE;
+                double maxTransitionProbWithProbOfPrevious = Double.NEGATIVE_INFINITY;
                 ProbWithPreviousTag previousTagWithMaxProb = null;
-                for (int k = 0; k <tags.size(); k++) {
+
+                for (int k = 0; k < tags.size(); k++) {
                     double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
                     double probOfPrevious = matrix[i-1][k].getProb();
                     double transitionProbWithProbOfPrevious = currentTransitionProb + probOfPrevious;
+
                     if (transitionProbWithProbOfPrevious >= maxTransitionProbWithProbOfPrevious){
                         maxTransitionProbWithProbOfPrevious = transitionProbWithProbOfPrevious;
                         previousTagWithMaxProb = matrix[i-1][k];
@@ -57,7 +59,7 @@ public class SentenceDecoder implements ISentenceDecoder {
         }
 
         // get best tagging
-        double maxProb = -Double.MAX_VALUE;
+        double maxProb = Double.NEGATIVE_INFINITY;
         ProbWithPreviousTag max = null;
         for (int j = 0; j < tags.size(); j++) {
             ProbWithPreviousTag current = matrix[segments.size() - 1][j];
