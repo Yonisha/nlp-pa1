@@ -89,7 +89,7 @@ public class SentenceDecoder implements ISentenceDecoder {
             if (unkSegment.isPresent()){
                 return getLogProb(getProbByTag(tag, unkSegment.get()));
             }else{
-                throw new IllegalArgumentException("Missing UNK segment!!!");
+                return -Double.MAX_VALUE;
             }
         }
     }
