@@ -99,7 +99,7 @@ public class PosTagger {
         String taggedTestFile = "C:/NLP/heb-pos.tagged";
 
         TrainerResult trainerResult = TrainerResult.buildTrainResult(paramFile1, paramFile2);
-        SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
+        SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult, model);
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
 
         long startTime = System.currentTimeMillis();

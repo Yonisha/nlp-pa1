@@ -1,7 +1,7 @@
 package decode;
 
+import common.Commons;
 import common.Sentence;
-import decode.ISentenceDecoder;
 import temp.NgramWithProb;
 import temp.NgramsByLength;
 import temp.ProbWithPreviousTag;
@@ -12,24 +12,38 @@ import java.util.*;
 
 public class SentenceDecoder implements ISentenceDecoder {
 
+    private int order;
     private List<NgramsByLength> stateTransitionProbabilities;
     private List<SegmentWithTagProbs> symbolEmissionProbabilities;
     private List<String> tags;
 
-    public SentenceDecoder(TrainerResult trainerResult){
+    public SentenceDecoder(TrainerResult trainerResult, int order){
         this.stateTransitionProbabilities = trainerResult.getStateTransitionProbabilities();
         this.symbolEmissionProbabilities = trainerResult.getSymbolEmissionProbabilities();
+        this.order = order;
         tags = createTags();
     }
 
     public List<String> decode(Sentence sentence) {
 
         List<String> segments = sentence.getSegments();
+        ProbWithPreviousTag[][] matrix = new ProbWithPreviousTag[segments.size()][tags.size()];
 
         // initialize
-        ProbWithPreviousTag[][] matrix = new ProbWithPreviousTag[segments.size()][tags.size()];
-        for (int j = 0; j <tags.size(); j++) {
-            double transitionProb = getTransitionProbForTwoTags("[s]", tags.get(j));
+        List<String> prefix = new ArrayList<>();
+        for (int i = 1; i < order; i++) {
+            prefix.add("[s]");
+        }
+
+
+        String[] prefixArr = new String[prefix.size() + 1];
+        for (int j = 0; j < tags.size(); j++) {
+            List<String> newPrefix = new ArrayList<>();
+            newPrefix.addAll(prefix);
+            newPrefix.add(tags.get(j));
+
+            String[] prefixArray = newPrefix.toArray(prefixArr);
+            double transitionProb = getTransitionProbForTags(prefixArray);
             double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(0));
             matrix[0][j] = new ProbWithPreviousTag(tags.get(j), null, transitionProb + emissionProb);
         }
@@ -43,7 +57,7 @@ public class SentenceDecoder implements ISentenceDecoder {
                 ProbWithPreviousTag previousTagWithMaxProb = null;
 
                 for (int k = 0; k < tags.size(); k++) {
-                    double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
+                    double currentTransitionProb = getTransitionProbForTags(matrix[i - 1][k].getTag(), tags.get(j));
                     double probOfPrevious = matrix[i-1][k].getProb();
                     double transitionProbWithProbOfPrevious = currentTransitionProb + probOfPrevious;
 
@@ -106,10 +120,15 @@ public class SentenceDecoder implements ISentenceDecoder {
         return 0;
     }
 
-    private double getTransitionProbForTwoTags(String firstTag, String secondTag) {
-        NgramsByLength allBigramTransitions = this.stateTransitionProbabilities.get(1);
-        String currentTagBigram = firstTag + " " + secondTag;
-        Optional<NgramWithProb> first = allBigramTransitions.getNgramsWithProb().stream().filter(n -> n.getNgram().equals(currentTagBigram)).findFirst();
+    private double getTransitionProbForTags(String... tags) {
+
+        // TODO: should ommit the -1 after refactoring stateTransitionProbabilities
+        int requiredTransitionProbOrder = tags.length - 1;
+
+        NgramsByLength allNgramTransitions = this.stateTransitionProbabilities.get(requiredTransitionProbOrder);
+        String currentTagNgram = Commons.join(tags, " ");
+        Optional<NgramWithProb> first = allNgramTransitions.getNgramsWithProb().stream().filter(n -> n.getNgram().equals(currentTagNgram)).findFirst();
+
         return getLogProb(first.isPresent() ? first.get().getProb() : 0);
     }
 

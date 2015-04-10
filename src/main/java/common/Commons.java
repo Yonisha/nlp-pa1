@@ -1,9 +1,14 @@
 package common;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public class Commons {
+    public static String join(String[] s, String delimiter) {
+        List<String> collection = new ArrayList<String>(Arrays.asList(s));
+
+        return join(collection, delimiter);
+    }
+
     public static String join(Collection<?> s, String delimiter) {
         StringBuilder builder = new StringBuilder();
         Iterator<?> iter = s.iterator();
@@ -14,6 +19,7 @@ public class Commons {
             }
             builder.append(delimiter);
         }
+
         return builder.toString();
     }
 }
