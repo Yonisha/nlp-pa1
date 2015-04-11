@@ -59,7 +59,6 @@ public class TrainerResult{
         return segmentsWithTagProbs;
     }
 
-    // TODO: handle case when adding the /data/ header.
     private static List<NgramsByLength> parseGramFile(String gramFilename) throws IOException {
         List<String> lexFileLines = FileHelper.readLinesFromFile(gramFilename);
         List<NgramsByLength> ngramsByLengths = new ArrayList<>();
@@ -68,6 +67,9 @@ public class TrainerResult{
         String currentNgram = String.format(NGRAM_HEADER_TEMPLATE, currentLength);
 
         List<NgramWithProb> ngramWithProbs = new ArrayList<>();
+
+        lexFileLines = removeDataHeaderLines(lexFileLines);
+
         for (String line : lexFileLines) {
             if (line.equalsIgnoreCase(currentNgram)) {
                 continue;
@@ -91,5 +93,21 @@ public class TrainerResult{
         ngramsByLengths.add(new NgramsByLength(currentLength, ngramWithProbs));
 
         return ngramsByLengths;
+    }
+
+    private static List<String> removeDataHeaderLines(List<String> lexFileLines) {
+        while (true) {
+            String line = lexFileLines.get(0);
+
+            if (line.equalsIgnoreCase("")) {
+                lexFileLines.remove(0);
+
+                break;
+            }
+
+            lexFileLines.remove(0);
+        }
+
+        return lexFileLines;
     }
 }

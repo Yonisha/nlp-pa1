@@ -69,15 +69,6 @@ public class PosTagger {
     private static void invokeNaiveTrainer(String trainFile) throws IOException {
         NaiveTrainer naiveTrainer = new NaiveTrainer();
         naiveTrainer.train(trainFile);
-
-        // TODO: move from here.
-        NaiveTrainerResult naiveTrainResult = NaiveTrainerResult.buildTrainResult("c:/nlp/heb-pos.lex");
-        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
-        PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
-        naiveDecoder.decode("c:/nlp/heb-pos.test", "c:/nlp/heb-pos.tagged");
-
-        PosTaggerEvaluator naiveEvaluator = new PosTaggerEvaluator(1, true);
-        naiveEvaluator.evaluate("c:/nlp/heb-pos.test", "c:/nlp/heb-pos.tagged", "c:/nlp/heb-pos.gold", "c:/nlp/heb-pos.eval");
     }
 
     // TODO: what to do with the optional param file???????
@@ -89,11 +80,17 @@ public class PosTagger {
             return;
         }
 
-        // TODO: why decode need model??!
+        // TODO: extract arg4 only when on HMM
         int model = Integer.parseInt(args[1]);
         String testFile = args[2];
         String paramFile1 = args[3];
         String paramFile2 = args[4];
+
+        if (model < 2) {
+            invokeNaiveDecoder(testFile, paramFile1);
+
+            return;
+        }
 
         // TODO: derive from test file name.
         String taggedTestFile = "C:/NLP/heb-pos.tagged";
@@ -106,7 +103,14 @@ public class PosTagger {
         decoder.decode(testFile, taggedTestFile);
         long decodeEndTime = System.currentTimeMillis();
 
-        System.out.println("Finished decoding after " + (decodeEndTime - startTime) / 1000d  + " seconds");
+        System.out.println("Finished decoding after " + (decodeEndTime - startTime) / 1000d + " seconds");
+    }
+
+    private static void invokeNaiveDecoder(String testFilename, String lexFilename) throws IOException {
+        NaiveTrainerResult naiveTrainResult = NaiveTrainerResult.buildTrainResult(lexFilename);
+        NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
+        PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
+        naiveDecoder.decode(testFilename, "c:/nlp/heb-pos.tagged");
     }
 
     private static void evaluate(String[] args) throws IOException {
