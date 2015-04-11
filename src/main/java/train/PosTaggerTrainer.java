@@ -65,8 +65,15 @@ public class PosTaggerTrainer {
 
     private List<String> createGramFile(List<NgramsByLength> ngramsByLength) throws IOException {
         List<String> outputLines = new ArrayList<>();
+        outputLines.add("\\data\\");
+
+        for (NgramsByLength ngramByLength: ngramsByLength) {
+            String line = String.format("ngram %s = %s", ngramByLength.getLength(), ngramByLength.getNgramsWithProb().size());
+            outputLines.add(line);
+        }
+
         for (NgramsByLength ngramByLength: ngramsByLength){
-            outputLines.add(ngramByLength.header());
+            outputLines.add("\n" + ngramByLength.header());
             List<NgramWithProb> ngramsWithProb = ngramByLength.getNgramsWithProb();
             for (NgramWithProb ngramWithProb: ngramsWithProb){
                 outputLines.add(ngramWithProb.toString());

@@ -16,17 +16,11 @@ public class NgramsByLength{
         return "\\" + length + "-grams\\";
     }
 
+    public int getLength() {
+        return length;
+    }
+
     public List<NgramWithProb> getNgramsWithProb(){
         return ngrams;
     }
-
-//    @Override
-//    public String toString(){
-//        String text =
-//        for (temp.NgramWithProb ngram: ngrams) {
-//            text += ngram.toString() + "\r\n";
-//
-//        }
-//        return text;
-//    }
 }
