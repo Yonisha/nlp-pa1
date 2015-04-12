@@ -3,6 +3,7 @@ package common;
 import temp.SegmentWithTagCounts;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,11 @@ public class FileHelper{
         }
 
         fileWriter.close();
+    }
+
+    public static String createFilenameWithExtension(String originalFilename, String extension) {
+
+        return originalFilename.replaceFirst("[.][^.]+$", "." + extension);
     }
 
     public static List<SegmentWithTagCounts> getSegmentsWithTagCounts(String filename) throws IOException {

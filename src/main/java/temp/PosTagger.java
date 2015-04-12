@@ -1,5 +1,6 @@
 package temp;
 
+import common.FileHelper;
 import decode.NaiveSentenceDecoder;
 import decode.PosTaggerDecoder;
 import decode.SentenceDecoder;
@@ -53,9 +54,8 @@ public class PosTagger {
             return;
         }
 
-        // TODO: derive from train filename.
-        String lexFile = "C:/NLP/heb-pos.lex";
-        String gramFile = "C:/NLP/heb-pos.gram";
+        String lexFile = FileHelper.createFilenameWithExtension(trainFile, "lex");
+        String gramFile = FileHelper.createFilenameWithExtension(trainFile, "gram");
 
         PosTaggerTrainer trainer = new PosTaggerTrainer(model, smoothingEnabled);
 
@@ -92,8 +92,7 @@ public class PosTagger {
             return;
         }
 
-        // TODO: derive from test file name.
-        String taggedTestFile = "C:/NLP/heb-pos.tagged";
+        String taggedTestFile = FileHelper.createFilenameWithExtension(testFile, "tagged");
 
         TrainerResult trainerResult = TrainerResult.buildTrainResult(paramFile1, paramFile2);
         SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
@@ -110,7 +109,9 @@ public class PosTagger {
         NaiveTrainerResult naiveTrainResult = NaiveTrainerResult.buildTrainResult(lexFilename);
         NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
         PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
-        naiveDecoder.decode(testFilename, "c:/nlp/heb-pos.tagged");
+
+        String taggedTestFile = FileHelper.createFilenameWithExtension(testFilename, "tagged");
+        naiveDecoder.decode(testFilename, taggedTestFile);
     }
 
     private static void evaluate(String[] args) throws IOException {
@@ -126,9 +127,8 @@ public class PosTagger {
         int model = Integer.parseInt(args[3]);
         boolean smoothingEnabled = args[4].equalsIgnoreCase("y");
 
-        // TODO: derive
-        String testFile = "C:/NLP/heb-pos.test";
-        String evaluationFile = "C:/NLP/heb-pos.eval";
+        String testFile = FileHelper.createFilenameWithExtension(taggedFile, "test");
+        String evaluationFile = FileHelper.createFilenameWithExtension(taggedFile, "eval");
 
         PosTaggerEvaluator evaluator = new PosTaggerEvaluator(model, smoothingEnabled);
 
