@@ -16,4 +16,11 @@ public class Commons {
         }
         return builder.toString();
     }
+
+    public static double getLogProb(double prob){
+        if (prob == 0)
+            return -Double.MAX_VALUE;
+
+        return Math.log(prob);
+    }
 }

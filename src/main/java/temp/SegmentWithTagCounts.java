@@ -1,5 +1,7 @@
 package temp;
 
+import common.Commons;
+
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -56,7 +58,9 @@ public class SegmentWithTagCounts {
                 }
             }
 
-            probabilities.put(key, (double)count / totalTagCountInAllSegments);
+            double prob = (double)count / totalTagCountInAllSegments;
+            double logProb = Commons.getLogProb(prob);
+            probabilities.put(key, logProb);
         }
 
         return probabilities;

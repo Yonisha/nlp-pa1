@@ -1,5 +1,6 @@
 package train;
 
+import common.Commons;
 import common.FileHelper;
 import temp.SegmentWithTagCounts;
 import temp.SegmentWithTagProbs;
@@ -30,8 +31,9 @@ public class NaiveTrainer {
                 String key = keys.nextElement();
                 Integer count = tagsCounts.get(key);
                 double probability = count / (double)totalSegmentOccurrences;
+                double logProb = Commons.getLogProb(probability);
 
-                probabilities.put(key, probability);
+                probabilities.put(key, logProb);
             }
 
             segmentsWithTagProbs.add(new SegmentWithTagProbs(segmentWithTagCounts.getText(), probabilities));

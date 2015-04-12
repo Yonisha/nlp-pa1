@@ -1,5 +1,6 @@
 package temp;
 
+import common.Commons;
 import common.Sentence;
 import common.NGram;
 
@@ -45,7 +46,9 @@ public class NGramsCreator{
         int amountOfUnigrams = ngrams.size();
         HashMap<String, Double> uniqueNgramsWithProb = new HashMap<>();
         for(String unigram: uniqueNgramsWithCount.keySet()){
-            uniqueNgramsWithProb.put(unigram, (double) uniqueNgramsWithCount.get(unigram) / amountOfUnigrams);
+            double prob = (double) uniqueNgramsWithCount.get(unigram) / amountOfUnigrams;
+            double logProb = Commons.getLogProb(prob);
+            uniqueNgramsWithProb.put(unigram, logProb);
         }
 
         return uniqueNgramsWithProb;
@@ -58,7 +61,10 @@ public class NGramsCreator{
         for(String bigram: uniqueNgramsWithCount.keySet()){
             String firstTag = bigram.split(" ")[0];
             int countOfRelevantUnigram = unigrams.get(firstTag);
-            uniqueNgramsWithProb.put(bigram, (double)uniqueNgramsWithCount.get(bigram)/countOfRelevantUnigram);
+
+            double prob = (double)uniqueNgramsWithCount.get(bigram)/countOfRelevantUnigram;
+            double logProb = Commons.getLogProb(prob);
+            uniqueNgramsWithProb.put(bigram, logProb);
         }
 
         return uniqueNgramsWithProb;

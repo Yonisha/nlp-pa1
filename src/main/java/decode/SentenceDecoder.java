@@ -1,5 +1,6 @@
 package decode;
 
+import common.Commons;
 import common.Sentence;
 import decode.ISentenceDecoder;
 import temp.NgramWithProb;
@@ -82,13 +83,13 @@ public class SentenceDecoder implements ISentenceDecoder {
 
     private double getEmissionProbForTagAndWord(String tag, String word) {
         Optional<SegmentWithTagProbs> matchingSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals(word)).findFirst();
-        if (matchingSegment.isPresent()){
-            return getLogProb(getProbByTag(tag, matchingSegment.get()));
-        }else{
+        if (matchingSegment.isPresent()) {
+            return getProbByTag(tag, matchingSegment.get());
+        } else {
             Optional<SegmentWithTagProbs> unkSegment = this.symbolEmissionProbabilities.stream().filter(s -> s.getName().equals("UNK")).findFirst();
             if (unkSegment.isPresent()){
-                return getLogProb(getProbByTag(tag, unkSegment.get()));
-            }else{
+                return getProbByTag(tag, unkSegment.get());
+            } else {
                 return -Double.MAX_VALUE;
             }
         }
@@ -103,14 +104,16 @@ public class SentenceDecoder implements ISentenceDecoder {
                 return prob;
             }
         }
-        return 0;
+
+        return -Double.MAX_VALUE;
     }
 
     private double getTransitionProbForTwoTags(String firstTag, String secondTag) {
         NgramsByLength allBigramTransitions = this.stateTransitionProbabilities.get(1);
         String currentTagBigram = firstTag + " " + secondTag;
         Optional<NgramWithProb> first = allBigramTransitions.getNgramsWithProb().stream().filter(n -> n.getNgram().equals(currentTagBigram)).findFirst();
-        return getLogProb(first.isPresent() ? first.get().getProb() : 0);
+
+        return first.isPresent() ? first.get().getProb() : Commons.getLogProb(0);
     }
 
     private List<String> createTags(){
@@ -128,12 +131,5 @@ public class SentenceDecoder implements ISentenceDecoder {
         uniqueTags.remove("[e]");
 
         return uniqueTags;
-    }
-
-    private double getLogProb(double prob){
-        if (prob == 0)
-            return -Double.MAX_VALUE;
-
-        return Math.log(prob);
     }
 }
