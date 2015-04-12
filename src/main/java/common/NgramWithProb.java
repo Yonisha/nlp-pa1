@@ -1,6 +1,4 @@
-package temp;
-
-import java.util.List;
+package common;
 
 public class NgramWithProb{
     private String ngram;

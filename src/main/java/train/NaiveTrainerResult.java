@@ -1,7 +1,7 @@
 package train;
 
 import common.FileHelper;
-import temp.SegmentWithTagProbs;
+import common.SegmentWithTagProbs;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Dictionary;

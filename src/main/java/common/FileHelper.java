@@ -1,9 +1,6 @@
 package common;
 
-import temp.SegmentWithTagCounts;
-
 import java.io.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,6 +55,7 @@ public class FileHelper{
 
         return segmentsWithTagsCount;
     }
+
 
     private static SegmentWithTagCounts getSegment(String segmentName, List<SegmentWithTagCounts> segmentsWithTagCounts) {
         for (SegmentWithTagCounts segmentItem : segmentsWithTagCounts) {

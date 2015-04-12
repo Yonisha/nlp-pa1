@@ -1,6 +1,4 @@
-package temp;
-
-import common.Commons;
+package common;
 
 import java.util.Dictionary;
 import java.util.Enumeration;

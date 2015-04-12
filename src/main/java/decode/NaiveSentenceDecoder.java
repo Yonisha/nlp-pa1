@@ -1,7 +1,7 @@
 package decode;
 
 import common.Sentence;
-import temp.SegmentWithTagProbs;
+import common.SegmentWithTagProbs;
 import train.NaiveTrainerResult;
 
 import java.util.ArrayList;

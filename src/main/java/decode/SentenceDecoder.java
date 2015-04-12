@@ -2,11 +2,9 @@ package decode;
 
 import common.Commons;
 import common.Sentence;
-import decode.ISentenceDecoder;
-import temp.NgramWithProb;
-import temp.NgramsByLength;
-import temp.ProbWithPreviousTag;
-import temp.SegmentWithTagProbs;
+import common.NgramWithProb;
+import common.NgramsByLength;
+import common.SegmentWithTagProbs;
 import train.TrainerResult;
 
 import java.util.*;
@@ -28,11 +26,11 @@ public class SentenceDecoder implements ISentenceDecoder {
         List<String> segments = sentence.getSegments();
 
         // initialize
-        ProbWithPreviousTag[][] matrix = new ProbWithPreviousTag[segments.size()][tags.size()];
+        State[][] matrix = new State[segments.size()][tags.size()];
         for (int j = 0; j <tags.size(); j++) {
             double transitionProb = getTransitionProbForTwoTags("[s]", tags.get(j));
             double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(0));
-            matrix[0][j] = new ProbWithPreviousTag(tags.get(j), null, transitionProb + emissionProb);
+            matrix[0][j] = new State(tags.get(j), null, transitionProb + emissionProb);
         }
 
         for (int i = 1; i < segments.size(); i++) {
@@ -41,7 +39,7 @@ public class SentenceDecoder implements ISentenceDecoder {
                 double emissionProb = getEmissionProbForTagAndWord(tags.get(j), segments.get(i));
 
                 double maxTransitionProbWithProbOfPrevious = Double.NEGATIVE_INFINITY;
-                ProbWithPreviousTag previousTagWithMaxProb = null;
+                State previousTagWithMaxProb = null;
 
                 for (int k = 0; k < tags.size(); k++) {
                     double currentTransitionProb = getTransitionProbForTwoTags(matrix[i-1][k].getTag(), tags.get(j));
@@ -55,15 +53,15 @@ public class SentenceDecoder implements ISentenceDecoder {
                 }
 
                 double finalProb = emissionProb + maxTransitionProbWithProbOfPrevious;
-                matrix[i][j] = new ProbWithPreviousTag(tags.get(j), previousTagWithMaxProb, finalProb);
+                matrix[i][j] = new State(tags.get(j), previousTagWithMaxProb, finalProb);
             }
         }
 
         // get best tagging
         double maxProb = Double.NEGATIVE_INFINITY;
-        ProbWithPreviousTag max = null;
+        State max = null;
         for (int j = 0; j < tags.size(); j++) {
-            ProbWithPreviousTag current = matrix[segments.size() - 1][j];
+            State current = matrix[segments.size() - 1][j];
             if (current.getProb() >= maxProb){
                 maxProb = current.getProb();
                 max = current;
@@ -71,7 +69,7 @@ public class SentenceDecoder implements ISentenceDecoder {
         }
 
         List<String> taggingResult = new ArrayList<>();
-        ProbWithPreviousTag currentTag = max;
+        State currentTag = max;
         taggingResult.add(currentTag.getTag());
         while (currentTag.getPrevious() != null){
             currentTag = currentTag.getPrevious();

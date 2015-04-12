@@ -2,8 +2,8 @@ package train;
 
 import common.Commons;
 import common.FileHelper;
-import temp.SegmentWithTagCounts;
-import temp.SegmentWithTagProbs;
+import common.SegmentWithTagCounts;
+import common.SegmentWithTagProbs;
 
 import java.io.IOException;
 import java.util.*;

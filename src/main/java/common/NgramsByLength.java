@@ -1,8 +1,8 @@
-package temp;
+package common;
 
 import java.util.List;
 
-public class NgramsByLength{
+public class NgramsByLength {
 
     private List<NgramWithProb> ngrams;
     private int length;

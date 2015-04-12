@@ -1,8 +1,4 @@
-package temp;
-
-import common.Commons;
-import common.Sentence;
-import common.NGram;
+package common;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +21,8 @@ public class NGramsCreator{
         List<NGram> bigrams = new ArrayList<NGram>();
         List<NGram> unigrams = new ArrayList<NGram>();
         for (Sentence sentence: sentences){
-            List<NGram> bigramsPerSentence = createPerSentence(2, sentence);
-            List<NGram> unigramsPerSentence = createPerSentence(1, sentence);
+            List<NGram> bigramsPerSentence = createNGramsFromSentence(2, sentence);
+            List<NGram> unigramsPerSentence = createNGramsFromSentence(1, sentence);
             bigrams.addAll(bigramsPerSentence);
             unigrams.addAll(unigramsPerSentence);
         }
@@ -84,13 +80,7 @@ public class NGramsCreator{
         return uniqueNgramsWithCount;
     }
 
-//    private temp.NgramsByLength createNgramsByLengthFromNgrams(int length, List<Ngram> ngrams){
-//        List<temp.NgramWithProb> ngramsWithProb = new ArrayList<>();
-//
-//        return new temp.NgramsByLength(length, ngramsWithProb);
-//    }
-
-    private List<NGram> createPerSentence(int length, Sentence sentence){
+    private List<NGram> createNGramsFromSentence(int length, Sentence sentence){
         List<String> segments = sentence.getSegments();
 
         List<NGram> ngrams = new ArrayList<NGram>();

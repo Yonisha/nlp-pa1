@@ -1,5 +1,3 @@
-package temp;
-
 import common.FileHelper;
 import decode.NaiveSentenceDecoder;
 import decode.PosTaggerDecoder;

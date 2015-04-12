@@ -1,8 +1,6 @@
 package evaluate;
 
 import common.FileHelper;
-import temp.WordWithTag;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +26,8 @@ public class PosTaggerEvaluator{
             throw new IllegalArgumentException("There was a problem with the decoder. The number of lines in the gold file and in the tagged file must be the same!");
         }
 
-        List<WordWithTag> decoderTaggingForCurrentSentence = new ArrayList<>();
-        List<WordWithTag> goldTaggingForCurrentSentence = new ArrayList<>();
+        List<String> decoderTaggingForCurrentSentence = new ArrayList<>();
+        List<String> goldTaggingForCurrentSentence = new ArrayList<>();
         List<SentenceStatistics> sentenceAccuracies = new ArrayList<>();
         int sentenceNum = 0;
         for (int i = 0; i < taggedFileInputLines.size(); i++) {
@@ -41,8 +39,8 @@ public class PosTaggerEvaluator{
                 decoderTaggingForCurrentSentence = new ArrayList<>();
                 goldTaggingForCurrentSentence = new ArrayList<>();
             }else{
-                decoderTaggingForCurrentSentence.add(createWordWithTagFromLine(taggedFileInputLines.get(i)));
-                goldTaggingForCurrentSentence.add(createWordWithTagFromLine(goldFileInputLines.get(i)));
+                decoderTaggingForCurrentSentence.add(getTagFromLine(taggedFileInputLines.get(i)));
+                goldTaggingForCurrentSentence.add(getTagFromLine(goldFileInputLines.get(i)));
             }
         }
 
@@ -50,9 +48,9 @@ public class PosTaggerEvaluator{
         FileHelper.writeLinesToFile(outputLines, evaluationFile);
     }
 
-    private WordWithTag createWordWithTagFromLine(String line){
+    private String getTagFromLine(String line){
         String[] partsOfLine = line.split("\t");
-        return new WordWithTag(partsOfLine[0], partsOfLine[1]);
+        return partsOfLine[1];
     }
 
     private List<String> createOutputLines(String testFileName, String goldFileName, List<SentenceStatistics> sentencesStatistics){

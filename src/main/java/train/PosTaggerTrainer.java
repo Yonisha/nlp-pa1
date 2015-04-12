@@ -1,8 +1,6 @@
 package train;
 
-import common.Sentence;
-import common.FileHelper;
-import temp.*;
+import common.*;
 
 import java.io.*;
 import java.util.ArrayList;

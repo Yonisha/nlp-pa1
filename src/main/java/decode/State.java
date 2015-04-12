@@ -1,11 +1,11 @@
-package temp;
+package decode;
 
-public class ProbWithPreviousTag{
+public class State {
     private String tag;
-    private ProbWithPreviousTag previous;
+    private State previous;
     private double prob;
 
-    public ProbWithPreviousTag(String tag, ProbWithPreviousTag previous, double prob){
+    public State(String tag, State previous, double prob){
         this.tag = tag;
         this.previous = previous;
         this.prob = prob;
@@ -19,7 +19,7 @@ public class ProbWithPreviousTag{
         return this.prob;
     }
 
-    public ProbWithPreviousTag getPrevious(){
+    public State getPrevious(){
         return this.previous;
     }
 }

@@ -1,9 +1,9 @@
 package train;
 
 import common.FileHelper;
-import temp.NgramWithProb;
-import temp.NgramsByLength;
-import temp.SegmentWithTagProbs;
+import common.NgramWithProb;
+import common.NgramsByLength;
+import common.SegmentWithTagProbs;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@ package analyze;
 import common.FileHelper;
 import common.NGram;
 import common.Sentence;
-import temp.SegmentWithTagCounts;
+import common.SegmentWithTagCounts;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +44,6 @@ public class Analyzer {
         System.out.println("# of tag-unigram tokens: " + tagUnigramTokens);
         System.out.println("# of tag-unigram types: " + tagUnigramTypes);
 
-        // TODO: check if correct!!!
         // Tags bigrams
         sentences = getSentences(lines, 1);
         List<NGram> bigrams = sentences.stream().map(s -> s.getTagsNGrams()).flatMap(m -> m.stream()).collect(Collectors.toList());
@@ -57,7 +56,6 @@ public class Analyzer {
         // Calculating lexical ambiguity
         List<SegmentWithTagCounts> segmentsWithTagCounts = FileHelper.getSegmentsWithTagCounts(fileName);
 
-        // TODO: correct??
         int totalDistinctPosTagsForAllSegmentTypes = segmentsWithTagCounts.stream().mapToInt(s -> s.getTagsCounts().size()).sum();
         double lexicalAmbiguity = totalDistinctPosTagsForAllSegmentTypes / (double)segmentsWithTagCounts.size();
 
