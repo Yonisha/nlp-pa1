@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The naive sentence decoder. For each sentence, this decoder simply finds the most frequently used tag.
+ */
 public class NaiveSentenceDecoder implements ISentenceDecoder {
 
     private List<SegmentWithTagProbs> symbolEmissionProbabilities;

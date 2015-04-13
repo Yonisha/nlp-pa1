@@ -8,6 +8,9 @@ import common.SegmentWithTagProbs;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * The naive trainer. For each segment, this trainer finds the most frequently used tag.
+ */
 public class NaiveTrainer {
 
     public NaiveTrainerResult train(String trainFile, String lexFile) throws IOException {

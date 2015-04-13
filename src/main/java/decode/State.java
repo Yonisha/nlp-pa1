@@ -1,5 +1,10 @@
 package decode;
 
+/**
+ * This class represents a state in the process of a sentence decoding.
+ * This state represents a segment's tag result as well as the probability for the assigned tag and the previous state
+ * that brought it to its maximum.
+ */
 public class State {
     private String tag;
     private State previous;

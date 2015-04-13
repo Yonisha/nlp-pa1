@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class is for internal use for part 1 (Exploratory Data Analysis).
+ */
 public class Analyzer {
     public static void main(String[] args) throws IOException {
         String trainFile = "C:/NLP/heb-pos.train";

@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class NGramsCreator{
+/**
+ * This class is responsible for creating ngrams from the given sentences.
+ */
+public class NGramsCreator {
 
     public List<NgramsByLength> create(int maxNgramLength, List<Sentence> sentences){
 
@@ -27,8 +30,6 @@ public class NGramsCreator{
             unigrams.addAll(unigramsPerSentence);
         }
 
-        // Bonus: createNgramsByLengthFromNgrams
-        // unigrams are calculated twice in total
         HashMap<String, Double> ngramsWithProbs = length == 1 ? createUnigramsFromNgrams(unigrams) : createBigramsFromNgrams(bigrams, createUniqueNgramsWithCount(unigrams));
         List<NgramWithProb> ngramWithProbs2 = new ArrayList<>();
         for (String ngram: ngramsWithProbs.keySet()){

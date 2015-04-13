@@ -8,6 +8,9 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
 
+/**
+ * The trainer for HMM.
+ */
 public class PosTaggerTrainer {
 
     private boolean enableSmoothing;
@@ -19,6 +22,9 @@ public class PosTaggerTrainer {
         this.maxNgramLength = maxNgramLength;
     }
 
+    /**
+     * The core function of this class. It receives a train file as input and output a lex and a gram file.
+     */
     public TrainerResult train(String trainFile, String lexFile, String gramFile) throws IOException {
         List<Sentence> sentences = new ArrayList<>();
         List<String> currentSentenceSegments = new ArrayList<>();
@@ -40,13 +46,13 @@ public class PosTaggerTrainer {
             segment.increment(tag);
         }
 
-        // write Lex file
+        // Writes Lex file
         List<SegmentWithTagCounts> lexSegmentsWithCount = enableSmoothing ? applySmoothing() : segmentsWithoutUnknown;
         List<SegmentWithTagProbs> lexSegments = createSegmentsWithTagProbs(lexSegmentsWithCount);
         List<String> lexOutputLines = createLexLines(lexSegments);
         FileHelper.writeLinesToFile(lexOutputLines, lexFile);
 
-        // write grams file
+        // Wtires grams file
         List<NgramsByLength> ngramsByLength = createNgramsByLength(sentences, maxNgramLength);
         List<String> gramOutputLines = createGramFile(ngramsByLength);
         FileHelper.writeLinesToFile(gramOutputLines, gramFile);

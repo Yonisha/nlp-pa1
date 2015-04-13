@@ -5,6 +5,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The tagger evaluator.
+ * This class is responsible for comparing the tagging result with the provided gold tagging.
+ * It uses the SentenceEvaluator to evaluate each single sentence, and outputs the evaluation file as output.
+ */
 public class PosTaggerEvaluator{
 
     private int maxNgramLength;

@@ -9,6 +9,10 @@ import train.PosTaggerTrainer;
 import train.TrainerResult;
 import java.io.IOException;
 
+/**
+ * This is the entry point for all operations.
+ * It receives all arguments and decides which operation to invoke.
+ */
 public class PosTagger {
 
     public static void main(String[] args) throws IOException {

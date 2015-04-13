@@ -1,4 +1,4 @@
-package common;
+package decode;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,6 +4,6 @@ import common.Sentence;
 
 import java.util.List;
 
-public interface ISentenceDecoder{
+public interface ISentenceDecoder {
     List<String> decode(Sentence sentence);
 }

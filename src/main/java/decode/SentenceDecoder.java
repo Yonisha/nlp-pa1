@@ -9,6 +9,11 @@ import train.TrainerResult;
 
 import java.util.*;
 
+/**
+ * The HMM sentence decoder. This decoder uses dynamic programming in order to tag a sentence in linear time.
+ * The decoder uses a matrix in order to find the most probable tag for each segment,
+ * with relation to the previous tag assigned for the previous segment.
+ */
 public class SentenceDecoder implements ISentenceDecoder {
 
     private List<NgramsByLength> stateTransitionProbabilities;
@@ -57,11 +62,16 @@ public class SentenceDecoder implements ISentenceDecoder {
             }
         }
 
-        // get best tagging
+        List<String> bestTagging = getBestTagging(matrix);
+
+        return bestTagging;
+    }
+
+    private List<String> getBestTagging(State[][] matrix) {
         double maxProb = Double.NEGATIVE_INFINITY;
         State max = null;
         for (int j = 0; j < tags.size(); j++) {
-            State current = matrix[segments.size() - 1][j];
+            State current = matrix[matrix.length - 1][j];
             if (current.getProb() >= maxProb){
                 maxProb = current.getProb();
                 max = current;
