@@ -31,7 +31,8 @@ public class PosTagger {
         } else if (operation.equalsIgnoreCase(Operation.Evaluate.toString())) {
             evaluate(args);
         } else {
-            System.out.println("Unknown operation provided. Must use Train, Decode or Evaluate.");
+            String errorMessage = String.format("Unknown operation '%s' provided. Must use Train, Decode or Evaluate.", operation);
+            System.out.println(errorMessage);
             System.exit(1);
         }
     }
@@ -49,7 +50,7 @@ public class PosTagger {
 
         boolean smoothingEnabled = true;
         if (model >=2 ) {
-            smoothingEnabled = args[3].equalsIgnoreCase("y");
+            smoothingEnabled = args[3].trim().equalsIgnoreCase("y");
         }
 
         String lexFile = FileHelper.createFilenameWithExtension(trainFile, "lex");
@@ -63,6 +64,7 @@ public class PosTagger {
 
         PosTaggerTrainer trainer = new PosTaggerTrainer(model, smoothingEnabled);
 
+        System.out.println("Training started...");
         long startTime = System.currentTimeMillis();
         trainer.train(trainFile, lexFile, gramFile);
         long trainEndTime = System.currentTimeMillis();
@@ -72,12 +74,14 @@ public class PosTagger {
 
     private static void invokeNaiveTrainer(String trainFile, String lexFile) throws IOException {
         NaiveTrainer naiveTrainer = new NaiveTrainer();
+
+        System.out.println("Training started...");
         naiveTrainer.train(trainFile, lexFile);
     }
 
     private static void decode(String[] args) throws IOException {
 
-        if (args.length < 5) {
+        if (args.length < 4) {
             System.out.println("Not enough parameters. Usage: ./decode <model> <heb-pos.test> <param-file1> [<param-file2>]");
 
             return;
@@ -93,6 +97,12 @@ public class PosTagger {
 
             return;
         } else {
+            if (args.length < 5) {
+                System.out.println("Not enough parameters for HMM decoding.");
+
+                return;
+            }
+
             paramFile2 = args[4];
         }
 
@@ -102,6 +112,7 @@ public class PosTagger {
         SentenceDecoder sentenceDecoder = new SentenceDecoder(trainerResult);
         PosTaggerDecoder decoder = new PosTaggerDecoder(sentenceDecoder);
 
+        System.out.println("Decoding started...");
         long startTime = System.currentTimeMillis();
         decoder.decode(testFile, taggedTestFile);
         long decodeEndTime = System.currentTimeMillis();
@@ -113,8 +124,9 @@ public class PosTagger {
         NaiveTrainerResult naiveTrainResult = NaiveTrainerResult.buildTrainResult(lexFilename);
         NaiveSentenceDecoder naiveSentenceDecoder = new NaiveSentenceDecoder(naiveTrainResult);
         PosTaggerDecoder naiveDecoder = new PosTaggerDecoder(naiveSentenceDecoder);
-
         String taggedTestFile = FileHelper.createFilenameWithExtension(testFilename, "tagged");
+
+        System.out.println("Decoding started...");
         naiveDecoder.decode(testFilename, taggedTestFile);
     }
 
@@ -129,13 +141,14 @@ public class PosTagger {
         String taggedFile = args[1];
         String goldFile = args[2];
         int model = Integer.parseInt(args[3]);
-        boolean smoothingEnabled = args[4].equalsIgnoreCase("y");
+        boolean smoothingEnabled = args[4].trim().equalsIgnoreCase("y");
 
         String testFile = FileHelper.createFilenameWithExtension(taggedFile, "test");
         String evaluationFile = FileHelper.createFilenameWithExtension(taggedFile, "eval");
 
         PosTaggerEvaluator evaluator = new PosTaggerEvaluator(model, smoothingEnabled);
 
+        System.out.println("Evaluation started...");
         long startTime = System.currentTimeMillis();
         evaluator.evaluate(testFile, taggedFile, goldFile, evaluationFile);
         long evaluateEndTime = System.currentTimeMillis();
