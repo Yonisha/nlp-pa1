@@ -7,8 +7,6 @@ import common.SegmentWithTagProbs;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 
 public class TrainerResult{
@@ -30,33 +28,10 @@ public class TrainerResult{
     }
 
     public static TrainerResult buildTrainResult(String lexFilename, String gramFilename) throws IOException {
-        List<SegmentWithTagProbs> segmentWithTagProbses = parseLexFile(lexFilename);
+        List<SegmentWithTagProbs> segmentWithTagProbses = FileHelper.parseLexFile(lexFilename);
         List<NgramsByLength> ngramsByLengths = parseGramFile(gramFilename);
 
         return new TrainerResult(ngramsByLengths, segmentWithTagProbses);
-    }
-
-    private static List<SegmentWithTagProbs> parseLexFile(String lexFilename) throws IOException {
-        List<String> lexFileLines = FileHelper.readLinesFromFile(lexFilename);
-        List<SegmentWithTagProbs> segmentsWithTagProbs = new ArrayList<>();
-
-        for (String line: lexFileLines) {
-            String[] parts = line.split("\t");
-            String segment = parts[0];
-
-            Dictionary<String, Double> posDictionary = new Hashtable<>();
-            for (int i = 1; i < parts.length; i++) {
-                String[] posWithProb = parts[i].split(" ");
-                String pos = posWithProb[0];
-                Double prob = Double.parseDouble(posWithProb[1]);
-
-                posDictionary.put(pos, prob);
-            }
-
-            segmentsWithTagProbs.add(new SegmentWithTagProbs(segment, posDictionary));
-        }
-
-        return segmentsWithTagProbs;
     }
 
     private static List<NgramsByLength> parseGramFile(String gramFilename) throws IOException {

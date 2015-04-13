@@ -2,6 +2,8 @@ package common;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.List;
 
 public class FileHelper{
@@ -56,6 +58,28 @@ public class FileHelper{
         return segmentsWithTagsCount;
     }
 
+    public static List<SegmentWithTagProbs> parseLexFile(String lexFilename) throws IOException {
+        List<String> lexFileLines = FileHelper.readLinesFromFile(lexFilename);
+        List<SegmentWithTagProbs> segmentsWithTagProbs = new ArrayList<>();
+
+        for (String line: lexFileLines) {
+            String[] parts = line.split("\t");
+            String segment = parts[0];
+
+            Dictionary<String, Double> posDictionary = new Hashtable<>();
+            for (int i = 1; i < parts.length; i++) {
+                String[] posWithProb = parts[i].split(" ");
+                String pos = posWithProb[0];
+                Double prob = Double.parseDouble(posWithProb[1]);
+
+                posDictionary.put(pos, prob);
+            }
+
+            segmentsWithTagProbs.add(new SegmentWithTagProbs(segment, posDictionary));
+        }
+
+        return segmentsWithTagProbs;
+    }
 
     private static SegmentWithTagCounts getSegment(String segmentName, List<SegmentWithTagCounts> segmentsWithTagCounts) {
         for (SegmentWithTagCounts segmentItem : segmentsWithTagCounts) {

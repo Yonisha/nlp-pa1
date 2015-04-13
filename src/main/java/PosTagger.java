@@ -43,17 +43,19 @@ public class PosTagger {
         int model = Integer.parseInt(args[1]);
         String trainFile = args[2];
 
-        // TODO: if model < 2 then do not extract
-        boolean smoothingEnabled = args[3].equalsIgnoreCase("y");
-
-        if (model < 2) {
-            invokeNaiveTrainer(trainFile);
-
-            return;
+        boolean smoothingEnabled = true;
+        if (model >=2 ) {
+            smoothingEnabled = args[3].equalsIgnoreCase("y");
         }
 
         String lexFile = FileHelper.createFilenameWithExtension(trainFile, "lex");
         String gramFile = FileHelper.createFilenameWithExtension(trainFile, "gram");
+
+        if (model < 2) {
+            invokeNaiveTrainer(trainFile, lexFile);
+
+            return;
+        }
 
         PosTaggerTrainer trainer = new PosTaggerTrainer(model, smoothingEnabled);
 
@@ -64,12 +66,11 @@ public class PosTagger {
         System.out.println("Finished training after " + (trainEndTime - startTime) / 1000d  + " seconds");
     }
 
-    private static void invokeNaiveTrainer(String trainFile) throws IOException {
+    private static void invokeNaiveTrainer(String trainFile, String lexFile) throws IOException {
         NaiveTrainer naiveTrainer = new NaiveTrainer();
-        naiveTrainer.train(trainFile);
+        naiveTrainer.train(trainFile, lexFile);
     }
 
-    // TODO: what to do with the optional param file???????
     private static void decode(String[] args) throws IOException {
 
         if (args.length < 5) {
@@ -78,16 +79,17 @@ public class PosTagger {
             return;
         }
 
-        // TODO: extract arg4 only when on HMM
         int model = Integer.parseInt(args[1]);
         String testFile = args[2];
         String paramFile1 = args[3];
-        String paramFile2 = args[4];
+        String paramFile2;
 
         if (model < 2) {
             invokeNaiveDecoder(testFile, paramFile1);
 
             return;
+        } else {
+            paramFile2 = args[4];
         }
 
         String taggedTestFile = FileHelper.createFilenameWithExtension(testFile, "tagged");

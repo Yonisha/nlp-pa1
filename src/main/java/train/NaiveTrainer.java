@@ -10,14 +10,8 @@ import java.util.*;
 
 public class NaiveTrainer {
 
-    public NaiveTrainerResult train(String trainFile) throws IOException {
+    public NaiveTrainerResult train(String trainFile, String lexFile) throws IOException {
         List<SegmentWithTagCounts> segmentsWithTagsCount = FileHelper.getSegmentsWithTagCounts(trainFile);
-
-        return buildTrainResult(segmentsWithTagsCount);
-    }
-
-    // TODO: can processed in parallel.
-    private NaiveTrainerResult buildTrainResult(List<SegmentWithTagCounts> segmentsWithTagsCount) throws IOException {
         List<SegmentWithTagProbs> segmentsWithTagProbs = new ArrayList<>();
 
         for (SegmentWithTagCounts segmentWithTagCounts : segmentsWithTagsCount) {
@@ -44,7 +38,7 @@ public class NaiveTrainer {
             outputLines.add(getLexLinePerSegment(segmentWithTagCounts));
         }
 
-        FileHelper.writeLinesToFile(outputLines, "c:/nlp/heb-pos.lex");
+        FileHelper.writeLinesToFile(outputLines, lexFile);
 
         return new NaiveTrainerResult(segmentsWithTagProbs);
     }

@@ -22,7 +22,6 @@ public class SegmentWithTagProbs {
         return this.tagsProbs;
     }
 
-    // TODO: can be used in SentenceDecoder??
     public String getTagWithMaxProbability() {
         Enumeration<String> keys = this.tagsProbs.keys();
 
